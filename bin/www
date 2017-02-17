@@ -1,0 +1,138 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('ue-content:server');
+var http = require('http');
+var mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
+var fs = require('fs');
+var Promise = require('bluebird');
+var log = Promise.promisifyAll(require('../services/log/controller/log'));
+var config = require('../config');
+var conn = mongoose.connection;
+
+var mongoConnect = config.defaultMongo;
+if(process.env.MONGO){
+    console.log("Setting connection string: "+process.env.MONGO);
+    mongoConnect = process.env.MONGO;
+}else console.log("Default connection string: "+mongoConnect);
+
+var mongoOptions = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
+
+function connectionM(){
+    mongoose.connect(mongoConnect, mongoOptions, function(err){
+        if(err) {
+            console.log("********************************************ERROR*******************************************");
+            console.log("Unable to connect to the database - this service will not persist data");
+            console.log("DB attempted: " + mongoConnect);
+            console.log("Please check that the database is running and try again.");
+            console.log("DETAILED ERROR BELOW");
+            console.log(err);
+            console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ERROR^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            setTimeout(function(){
+                connectionM();
+            },2000);
+        }
+    });
+}
+
+connectionM();
+
+/**
+ * Create HTTP server.
+ */
+conn.once('open', function () {
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
+});
+
+conn.on("connected", function(){
+    console.log('connected to ' + mongoConnect);
+});
+
+conn.on("error", function(){
+    console.log("There was a connection error with Mongo.");
+});
+
+conn.on('disconnected', function(){
+    console.log('Mongo has disconnected.');
+});
+
+conn.on('reconnected', function(){
+    console.log('Mongo has reconnected.');
+});
+
+/**
+ * Get port from environment and store in Express.
+ */
+var port = normalizePort(process.env.PORT || '3010');
+app.set('port', port);
+var server = http.createServer(app);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+function normalizePort(val) {
+    var port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
+
+    if (port >= 0) {
+        // port number
+        return port;
+    }
+
+    return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+
+    var bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+    console.log('connected');
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    console.log('Listening on ' + bind);
+}

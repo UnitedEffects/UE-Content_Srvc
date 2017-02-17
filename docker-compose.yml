@@ -1,0 +1,15 @@
+version: '2'
+services:
+  mailer:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./:/src/
+      - /src/node_modules
+    environment:
+    - SWAG_DOM=localhost:3002
+    - GATEWAY=localhost:6000
+    - USERAUTH=http://localhost:4000
+    - NODE_ENV=dev
+    - MONGO=mongodb://10.0.0.2:27017/pc-content
