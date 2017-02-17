@@ -42,8 +42,10 @@ var postCardFactory = {
                 return cb(send.failErr(error), null);
             })
     },
-    returnAll: function(cb){
-        Content.findAsync({})
+    returnAll: function(tag, cb){
+        var query = {};
+        if(tag) query = {tag:tag};
+        Content.findAsync(query)
             .then(function(result){
                 return cb(null, send.success(result));
             })

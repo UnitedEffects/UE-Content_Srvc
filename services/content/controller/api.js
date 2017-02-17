@@ -39,7 +39,8 @@ var postCardApi = {
             })
     },
     returnAll: function(req, res){
-        content.returnAllAsync()
+        var tag = (req.query.tag) ? req.query.tag : null;
+        content.returnAllAsync(tag)
             .then(function(output){
                 return response.sendJson(res, output);
             })

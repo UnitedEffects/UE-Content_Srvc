@@ -76,8 +76,16 @@ paths:
         - Content
       summary: Get All content entrys
       description: Get All content entrys
+      consumes:
+        - application/json
       produces:
         - application/json
+      parameters:
+      - name: tag
+        in: query
+        type: string
+        required: false
+        description: optional filter on tag value
       responses:
         200:
           description: GET successful
