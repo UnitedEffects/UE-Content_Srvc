@@ -20,9 +20,12 @@ var yamlSource = './services/yaml/api.yml';
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
+var swagSchema = 'http';
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-if(process.env.NODE_ENV==='production')app.use(logger('tiny'));
+if(process.env.NODE_ENV==='production'){
+    app.use(logger('tiny'));
+    swagSchema = 'https';
+}
 else app.use(logger('dev'));
 app.use(bodyParser.json({limit: '1mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -45,7 +48,7 @@ app.use(swagger.init(app, {
     swaggerURL: '/docs',
     swaggerJSON: '/api-docs',
     swaggerUI: './public/swagger',
-    schemes: ['http'],
+    schemes: [swagSchema],
     info: {
         version: '1.0.0',
         title: 'UE Content Service',
