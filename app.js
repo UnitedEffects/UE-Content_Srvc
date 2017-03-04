@@ -70,8 +70,8 @@ app.use(swagger.init(app, {
     ],
     securityDefinitions: {
         "api_key": {
-            "type": "apiKey",
-            "name": "api_key",
+            "type": "bearer",
+            "name": "authentication",
             "in": "header"
         }
     },

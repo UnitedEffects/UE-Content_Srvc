@@ -1,6 +1,10 @@
 # UE-Content_Srvc
 This service allows you to create and store content (text or html) to be utilized on web pages.
 
+## Documentation
+
+https://github.com/UnitedEffects/UE-Content_Srvc/wiki/Documentation
+
 ## Docker
 
 * docker pull unitedeffects/ue-content:latest
