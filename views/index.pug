@@ -1,8 +1,22 @@
 extends layout
 
 block content
-  body(class='sc-bod')
-    div()
-      #message-bar United Effects Content Service
-    div()
-      a(href='/docs') Swagger
+  section#head.section
+    .container.keyPad
+      .row
+        .col-md-10.col-lg-10.col-md-offset-1.col-lg-offset-1.text-center
+          h2.title United Effects Platform
+          h3.subtitle Content Service
+          h4.tagline
+            | This is a simple service to store content as text or html.
+            br
+            |                    Use this service to pull reusable data to your UI during runtime.
+          p
+          .row
+            .col-md-4
+              a.btn.btn-default.btn-lg.btn-block(href='/docs' style="font-size: 1.6em;") Swagger&nbsp;
+            .col-md-4
+              a.btn.btn-default.btn-lg.btn-block(href='https://freedompostcards.com' style="font-size: 1.6em;") Postcards&nbsp;
+            .col-md-4
+              a.btn.btn-default.btn-lg.btn-block(href='https://github.com/UnitedEffects/UE-Content_Srvc' style="font-size: 1.6em;") Documentation&nbsp;
+
