@@ -88,7 +88,7 @@ var postCardApi = {
             })
     },
     deleteOne: function(req, res){
-        if(!req.user) return response.sendUnauthorized(res);
+        if(req.user.role!=1) return response.sendUnauthorized(res);
         content.deleteOneAsync(req.params.id)
             .then(function(output){
                 return response.sendJson(res, output);
