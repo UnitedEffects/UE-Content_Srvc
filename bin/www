@@ -21,8 +21,14 @@ if(process.env.MONGO){
     mongoConnect = process.env.MONGO;
 }else console.log("Default connection string: "+mongoConnect);
 
-var mongoOptions = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
-    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } }, auth:{authdb:"admin"} };
+var mongoOptions = {
+    server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+    replset: {
+        rs_name: config.replica,
+        socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 }
+    },
+    auth:{authdb:"admin"}
+};
 
 function connectionM(){
     mongoose.connect(mongoConnect, mongoOptions, function(err){
