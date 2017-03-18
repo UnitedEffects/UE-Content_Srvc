@@ -20,7 +20,8 @@ router.get('/', function(req, res, next) {
 //Postcards
 router.post('/content', authApi.isChainedSocialBearer, contentApi.create); //admin only
 router.get('/content/:id', authApi.isChainedSocialBearer, contentApi.returnOne); //logged in user
-router.get('/content/:slug', authApi.isChainedSocialBearer, contentApi.returnOneBySlug);
+router.get('/content/:slug', authApi.isChainedSocialBearer, contentApi.returnOneBySlugSecure);
+router.get('/content/public/:slug', contentApi.returnOneBySlug);
 router.get('/content', authApi.isChainedSocialBearer, contentApi.returnAll); //logged in user
 router.patch('/content/:id', authApi.isChainedSocialBearer, contentApi.patchOne); //admin only
 router.delete('/content/:id', authApi.isChainedSocialBearer, contentApi.deleteOne); //admin only

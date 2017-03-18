@@ -46,6 +46,10 @@ var contentSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    auth_required: {
+        type: Boolean,
+        default: false
+    },
     categories:[
         {
             name: {

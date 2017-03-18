@@ -36,6 +36,17 @@ var postCardFactory = {
         Content.findOneAsync({slug:slug})
             .then(function(result){
                 if(!result) return cb(send.fail404("Content not found: "+slug), null);
+                if(result.auth_required) return cb(send.fail403("This endpoint is not secure but the content requested is. Please use the secure endpoint: /api/content/{slug}"), null);
+                return cb(null, send.success(result));
+            })
+            .catch(function(error){
+                return cb(send.failErr(error), null);
+            })
+    },
+    returnOneBySlugSecure: function(slug, cb){
+        Content.findOneAsync({slug:slug})
+            .then(function(result){
+                if(!result) return cb(send.fail404("Content not found: "+slug), null);
                 return cb(null, send.success(result));
             })
             .catch(function(error){

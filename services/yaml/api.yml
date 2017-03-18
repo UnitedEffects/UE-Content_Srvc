@@ -128,6 +128,35 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/defaultError'
+  /content/public/{slug}:
+    get:
+      tags:
+        - Content
+      summary: Public access - Get a content entry by slug
+      description: Public access - Get a content entry by slug
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: slug
+        type: string
+        in: path
+        required: true
+        description: slug of content to retrieve
+      responses:
+        200:
+          description: GET successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
   /content/{id}:
     get:
       tags:
@@ -587,6 +616,8 @@ definitions:
         default: true
       internal_description:
         type: string
+      auth_required:
+        type: boolean
   contentObject:
     properties:
       title:

@@ -38,6 +38,16 @@ var postCardApi = {
                 return response.sendJson(res, error);
             })
     },
+    returnOneBySlugSecure: function(req, res){
+        content.returnOneBySlugSecureAsync(req.params.slug)
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                if(error.stack) console.log(error.stack);
+                return response.sendJson(res, error);
+            })
+    },
     returnAll: function(req, res){
         var tag = (req.query.tag) ? req.query.tag : null;
         content.returnAllAsync(tag)

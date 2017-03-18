@@ -1,6 +1,6 @@
 {
   "name": "ue-content",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A microservice to store and serve content to a UI.",
   "private": true,
   "scripts": {
