@@ -200,6 +200,15 @@ var postCardApi = {
                 if(error.stack) console.log(error.stack);
                 return response.sendJson(res, error);
             })
+    },
+    publicServe: function(req, res, next){
+        content.returnOneBySlugAsync(req.params.slug)
+            .then(function(output){
+                return res.send(output.data.content);
+            })
+            .catch(function(error){
+                next();
+            })
     }
 };
 
