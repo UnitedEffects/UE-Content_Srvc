@@ -5,7 +5,7 @@
 var config = {
     defaultMongo: (process.env.MONGO) ? process.env.MONGO : 'mongodb://localhost:27017/ue-content',
     swaggerDomain: (process.env.SWAG_DOM) ? process.env.SWAG_DOM : 'localhost:3010',
-    gatewayDomain: (process.env.GATEWAY) ? process.env.GATEWAY : 'localhost:6000',
+    authApiServer: (process.env.DOMAIN) ? process.env.DOMAIN : 'http://localhost:4010',
     userApiServer: (process.env.USERAUTH) ? process.env.USERAUTH : 'https://userauth.freedompostcards.com',//http://localhost:4000',
     replica: process.env.REPLICA
 };

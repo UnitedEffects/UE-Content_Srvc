@@ -3,6 +3,7 @@ var authApi = require('../services/auth/controller/api');
 var config = require('../config');
 var contentApi = require('../services/content/controller/api');
 var router = express.Router();
+var helper = require('../services/helper');
 
 /* GET api listing. */
 router.get('/', function(req, res, next) {
@@ -44,6 +45,7 @@ router.get('/health', function(req, res){
     res.json({err: null, data: {server: 'running'}});
 });
 router.get('/health/admin', authApi.isChainedSocialBearer, function(req, res){
+    if(req.user.role!=1) res.status(401).send('Unauthorized');
     res.json({err: null, data: {server: 'running', mongo: helper.mongoStatus()}});
 });
 
