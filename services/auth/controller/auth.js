@@ -210,7 +210,7 @@ function getBearerToken(accessToken, callback){
             var returned = (helper.isJson(response.body)) ? JSON.parse(response.body) : response.body;
             try {
                 authFactory.saveToken(returned.data, {product: lookup[2] || null, domain: lookup[3] || null}, lookup[1], function (err, saved) {
-                    //if (err) console.log('validated token but could not save - moving on.');
+                    if (err) console.log('validated token but could not save - moving on.');
                     return callback(null, returned.data);
                 });
             } catch (err) {
@@ -265,7 +265,7 @@ var authFactory = {
     isBearerAuthenticated: passport.authenticate('bearer', { session: false }),
     isBearerAdmin: passport.authenticate('isAdmin', { session: false }),
     isAuthenticated: passport.authenticate('basicWithCode', { session : false}),
-    isChainedSocialBearer: passport.authenticate(['social','bearer'], {session: false}),
+    isChainedSocialBearer: passport.authenticate(['bearer','social'], {session: false}),
     saveToken: function (user, access, tokenVal, callback){
         Token.findOneAndRemoveAsync({user_id: user._id, product_slug: access.product, domain_slug: access.domain})
             .then(function(result){
