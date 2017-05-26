@@ -70,7 +70,7 @@ var imageFactory = {
             });
     },
     searchImages: function(q, cb){
-        Images.searchAsync(q, {name: 1, description: 1, tags: 1}, {conditions: {name: {$exists: true}}, sort: {name: 1}, limit: 100})
+        Images.searchAsync(q, {name: 1, slug: 1, description: 1, tags: 1, url: 1}, {conditions: {name: {$exists: true}}, sort: {name: 1}, limit: 100})
             .then(function(result){
                 return cb(null, send.success(result));
             })
@@ -78,6 +78,45 @@ var imageFactory = {
                 return cb(send.failErr(error), null);
             })
     },
-}
+    addImageCategory: function(id, option, cb){
+        Images.findOneAndUpdateAsync({_id:id}, {$push:{categories: option}},{new:true})
+            .then(function(result){
+                if(!result) return cb(send.fail404("ID not found: "+id), null);
+                return cb(null, send.success(result));
+            })
+            .catch(function(error){
+                return cb(send.failErr(error), null);
+            })
+    },
+    removeImageCategory: function(id, name, cb){
+        Images.findOneAndUpdateAsync({_id:id}, {$pull:{categories:{name: name}}},{new:true})
+            .then(function(result){
+                if(!result) return cb(send.fail404("ID not found: "+id), null);
+                return cb(null, send.success(result));
+            })
+            .catch(function(error){
+                return cb(send.failErr(error), null);
+            })
+    },
+    getImageCategories: function(id, cb){
+        Images.findOneAsync({_id:id})
+            .then(function(result){
+                if(!result) return cb(send.fail404("ID not found: "+id), null);
+                return cb(null, send.success(result.categories));
+            })
+            .catch(function(error){
+                return cb(send.failErr(error), null);
+            })
+    },
+    getImagesByCategory: function(name, cb){
+        Images.findAsync({'categories.name': name})
+            .then(function(result){
+                return cb(null, send.success(result));
+            })
+            .catch(function(error){
+                return cb(send.failErr(error), null);
+            })
+    }
+};
 
 module.exports = imageFactory;

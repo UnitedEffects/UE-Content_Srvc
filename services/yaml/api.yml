@@ -780,6 +780,133 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/defaultError'
+  /image/{id}/category:
+    put:
+      tags:
+        - Images
+      summary: Add a category to an image entry
+      description: Add a category to an image entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of image to retrieve
+      - name: Category
+        in: body
+        required: true
+        description: Category to add to the image
+        schema:
+          $ref: '#/definitions/categoryAddObject'
+      responses:
+        200:
+          description: Save successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+  /image/{id}/category/{name}:
+    patch:
+      tags:
+        - Images
+      summary: Remove a category from an Image entry
+      description: Remove a category from an Image entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of image entry to retrieve
+      - name: name
+        type: string
+        in: path
+        required: true
+        description: Name of the category to remove from issue
+      responses:
+        200:
+          description: Save successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+  /image/{id}/categories:
+    get:
+      tags:
+        - Images
+      summary: Get an image entry categories
+      description: Get an image entry categories
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of image entry categories to retrieve
+      responses:
+        200:
+          description: GET successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+  /images/category/{name}:
+    get:
+      tags:
+        - Images
+      summary: Get image entrys by category
+      description: Get image entrys by category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: name
+        type: string
+        in: path
+        required: true
+        description: name of category to filter
+      responses:
+        200:
+          description: GET successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
 definitions:
   success:
     required:
@@ -856,5 +983,7 @@ definitions:
         type: string
       slug:
         type: string
-      tag:
-        type: string
+      tags:
+        type: array
+        items:
+          type: string

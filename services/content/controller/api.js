@@ -5,7 +5,13 @@
 var response = require('../../helper');
 var Promise = require('bluebird');
 var content = Promise.promisifyAll(require('./content'));
+var images = Promise.promisifyAll(require('./images'));
 var config = require('../../../config');
+var multipart = require('multiparty');
+var AWS = require('aws-sdk');
+var fs = require('fs');
+var send = require('../../callback');
+var request = require('request');
 
 var postCardApi = {
     create: function(req, res){
@@ -238,9 +244,10 @@ var postCardApi = {
                     description: fields.description[0] || null,
                     url: data.Location,
                     owner: req.user._id,
-                    tags: fields.tag[0],
+                    tags: fields.tag,
                     meta: data
                 };
+
                 images.addImageAsync(options)
                     .then(function(output){
                         return response.sendJson(res, output);
@@ -307,6 +314,64 @@ var postCardApi = {
     },
     searchImages: function(req, res){
         images.searchImagesAsync(req.query.q)
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                if(error.stack) console.log(error.stack);
+                return response.sendJson(res, error);
+            })
+    },
+    addImageCategory: function(req, res){
+        images.getImageInfoAsync(req.params.id)
+            .then(function(img){
+                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
+                return content.returnOneCategoryByNameAsync(req.body.name)
+            })
+            .then(function(result){
+                if(result.err) return result;
+                if(!result) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
+                return images.addImageCategoryAsync(req.params.id, {name: result.data.name, description: result.data.description})
+            })
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                if(error.stack) console.log(error.stack);
+                return response.sendJson(res, error);
+            })
+    },
+    removeImageCategory: function(req, res){
+        images.getImageInfoAsync(req.params.id)
+            .then(function(img){
+                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
+                return content.returnOneCategoryByNameAsync(req.params.name)
+            })
+            .then(function(result){
+                if(result.err) return result;
+                if(!result) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
+                return images.removeImageCategoryAsync(req.params.id, req.params.name)
+            })
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                if(error.stack) console.log(error.stack);
+                return response.sendJson(res, error);
+            })
+    },
+    getImageCategories: function(req, res){
+        images.getImageCategoriesAsync(req.params.id)
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                if(error.stack) console.log(error.stack);
+                return response.sendJson(res, error);
+            })
+    },
+    getImagesByCategory: function(req, res){
+        images.getImagesByCategoryAsync(req.params.name)
             .then(function(output){
                 return response.sendJson(res, output);
             })
