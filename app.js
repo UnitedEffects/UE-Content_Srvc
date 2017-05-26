@@ -66,6 +66,10 @@ app.use(swagger.init(app, {
         {
             name: "Categories",
             description: "Content Organization"
+        },
+        {
+            name: "Images",
+            description: "Image Organization"
         }
     ],
     securityDefinitions: {

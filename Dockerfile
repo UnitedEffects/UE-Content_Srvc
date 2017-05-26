@@ -10,6 +10,7 @@ RUN mkdir /src
 
 COPY . /src
 WORKDIR /src
+RUN mv /src/config_changeme.js /src/config.js
 RUN npm install bower -g
 RUN npm install
 RUN bower install --allow-root
