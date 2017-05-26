@@ -40,6 +40,17 @@ router.delete('/category/:id', authApi.isChainedSocialBearer, contentApi.removeO
 router.get('/category/name/:name', authApi.isChainedSocialBearer, contentApi.returnOneCategoryByName);
 router.get('/categories/search', authApi.isChainedSocialBearer, contentApi.searchCategory);
 
+
+//images
+router.post('/image', authApi.isChainedSocialBearer, contentApi.addImage);
+router.patch('/image/:id', authApi.isChainedSocialBearer, contentApi.updateImage);
+router.delete('/image/:id', authApi.isChainedSocialBearer, contentApi.removeImage);
+router.get('/image/:id', contentApi.getImage);
+router.get('/images', contentApi.getImages);
+router.get('/images/search', contentApi.searchImages);
+router.get('/img/:slug', contentApi.imageProxy);
+
+
 //healthcheck
 router.get('/health', function(req, res){
     res.json({err: null, data: {server: 'running'}});

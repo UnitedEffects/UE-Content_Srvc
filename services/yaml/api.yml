@@ -576,6 +576,210 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/defaultError'
+  /image:
+    post:
+      tags:
+        - Images
+      summary: Add a new imgage
+      description: Add a new image
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+      - in: formData
+        name: file
+        type: file
+        required: true
+      - in: formData
+        name: name
+        type: text
+        required: true
+      - in: formData
+        name: description
+        type: text
+        required: true
+      - in: formData
+        name: tag
+        type: text
+        required: false
+      responses:
+        200:
+          description: Save successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+  /image/{id}:
+    get:
+      tags:
+        - Images
+      summary: Get an image data
+      description: Get an image data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: id of image to retrieve
+      responses:
+        200:
+          description: GET successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+    patch:
+      tags:
+        - Images
+      summary: Update an imgage data
+      description: Update an image data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: id of image to retrieve
+      - name: new image
+        in: body
+        required: true
+        description: new image data to be added
+        schema:
+          $ref: '#/definitions/imageObject'
+      responses:
+        200:
+          description: Save successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+    delete:
+      tags:
+        - Images
+      summary: Delete an image entry - Warning, this will break dependecies
+      description: Delerte an image entry - Warning, this will break dependecies
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: id of image to delete
+      responses:
+        200:
+          description: GET successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+  /images:
+    get:
+      tags:
+        - Images
+      summary: PUBLIC - Get all images
+      description: PUBLIC - Get all images
+      produces:
+        - application/json
+      responses:
+        200:
+          description: GET successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+  /img/{slug}:
+    get:
+      tags:
+        - Images
+      summary: Proxy to an image directly
+      description: Proxy to an image directly
+      produces:
+        - text/html
+      parameters:
+      - name: slug
+        type: string
+        in: path
+        required: true
+        description: id of image to retrieve
+      responses:
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
+  /images/search:
+    get:
+      tags:
+        - Images
+      summary: Search for Images
+      description: Search for Images
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: q
+        type: string
+        in: query
+        required: true
+        description: String to define what you are looking for
+      responses:
+        200:
+          description: GET successful
+          schema:
+            $ref: '#/definitions/success'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/defaultError'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/defaultError'
 definitions:
   success:
     required:
@@ -641,4 +845,16 @@ definitions:
   categoryAddObject:
     properties:
       name:
+        type: string
+  imageObject:
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      url:
+        type: string
+      slug:
+        type: string
+      tag:
         type: string

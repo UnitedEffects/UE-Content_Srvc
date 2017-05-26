@@ -209,7 +209,126 @@ var postCardApi = {
             .catch(function(error){
                 next();
             })
+    },
+    //images...
+    addImage: function(req, res){
+        var s3Client = new AWS.S3({
+            accessKeyId: config.S3_Key,
+            secretAccessKey: config.S3_Secret
+        });
+
+        var form = new multipart.Form();
+
+        form.parse(req, function(error, fields, files){
+            var myFile = files.file[0];
+            var metaData = getContentTypeByFile(myFile.originalFilename);
+            s3Client.upload({
+                Bucket: config.S3_Bucket,
+                Key: myFile.originalFilename,
+                ACL: 'public-read',
+                Body: fs.createReadStream(myFile.path),
+                ContentType: metaData
+            }, function (err, data) {
+                if (err) return response.sendJson(res, send.failErr(err));
+                if (!fields.description) return response.sendJson(res, send.fail417('Missing Description'));
+                if (!fields.name) return response.sendJson(res, send.fail417('Missing Description'));
+                fs.unlinkSync(myFile.path);
+                var options = {
+                    name: fields.name[0] || null,
+                    description: fields.description[0] || null,
+                    url: data.Location,
+                    owner: req.user._id,
+                    tags: fields.tag[0],
+                    meta: data
+                };
+                images.addImageAsync(options)
+                    .then(function(output){
+                        return response.sendJson(res, output);
+                    })
+                    .catch(function(error){
+                        return response.sendJson(res, error);
+                    })
+            });
+        })
+    },
+    imageProxy: function(req, res){
+        images.getImageInfoBySlugAsync(req.params.slug)
+            .then(function(output){
+                return request.get(output.data.url).pipe(res);
+            })
+            .catch(function(error){
+                return response.sendJson(res, error);
+            })
+    },
+    getImage: function(req, res){
+        images.getImageInfoAsync(req.params.id)
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                return response.sendJson(res, error);
+            })
+    },
+    updateImage: function(req, res){
+        images.getImageInfoAsync(req.params.id)
+            .then(function(img){
+                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
+                return images.updateImageAsync(req.params.id, req.body)
+            })
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                return response.sendJson(res, error);
+            })
+    },
+    removeImage: function(req, res){
+        //leaving S3 alone...
+        images.getImageInfoAsync(req.params.id)
+            .then(function(img){
+                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
+                return images.removeImageAsync(req.param.id)
+            })
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                return response.sendJson(res, error);
+            })
+    },
+    getImages: function(req, res){
+        images.getAllImagesAsync()
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                return response.sendJson(res, error);
+            })
+    },
+    searchImages: function(req, res){
+        images.searchImagesAsync(req.query.q)
+            .then(function(output){
+                return response.sendJson(res, output);
+            })
+            .catch(function(error){
+                if(error.stack) console.log(error.stack);
+                return response.sendJson(res, error);
+            })
     }
 };
+
+function getContentTypeByFile(fileName) {
+    var rc = 'application/octet-stream';
+    var fn = fileName.toLowerCase();
+
+    if (fn.indexOf('.html') >= 0) rc = 'text/html';
+    else if (fn.indexOf('.css') >= 0) rc = 'text/css';
+    else if (fn.indexOf('.json') >= 0) rc = 'application/json';
+    else if (fn.indexOf('.js') >= 0) rc = 'application/x-javascript';
+    else if (fn.indexOf('.png') >= 0) rc = 'image/png';
+    else if (fn.indexOf('.jpg') >= 0) rc = 'image/jpg';
+
+    return rc;
+}
 
 module.exports = postCardApi;
