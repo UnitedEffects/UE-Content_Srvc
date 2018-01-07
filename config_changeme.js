@@ -8,7 +8,7 @@ var config = {
     userApiServer: (process.env.USERAUTH) ? process.env.USERAUTH : 'https://userauth.freedompostcards.com',//http://localhost:4000',
     S3_Key: process.env.S3_KEY || 'S3-KEY',
     S3_Secret: process.env.S3_SECRET || 'S3-SECRET',
-    S3_Bucket: process.env.S3_BUCKET || 'postcard-issue-covers',
+    S3_Bucket: process.env.S3_BUCKET || 'ue-platform-content',
     replica: process.env.REPLICA
 };
 
