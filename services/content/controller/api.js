@@ -224,13 +224,13 @@ var postCardApi = {
         });
 
         var form = new multipart.Form();
-
+        const dateNow = Date.now();
         form.parse(req, function(error, fields, files){
             var myFile = files.file[0];
             var metaData = getContentTypeByFile(myFile.originalFilename);
             s3Client.upload({
                 Bucket: config.S3_Bucket,
-                Key: myFile.originalFilename,
+                Key: req.user._id+'_'+files.file[0]+'_'+dateNow+'_'+myFile.originalFilename,
                 ACL: 'public-read',
                 Body: fs.createReadStream(myFile.path),
                 ContentType: metaData
@@ -240,7 +240,7 @@ var postCardApi = {
                 if (!fields.name) return response.sendJson(res, send.fail417('Missing Description'));
                 fs.unlinkSync(myFile.path);
                 var options = {
-                    name: fields.name[0] || null,
+                    name: req.user._id+'_'+files.file[0]+'_'+dateNow || req.user._id+'_'+dateNow,
                     description: fields.description[0] || null,
                     url: data.Location,
                     owner: req.user._id,
