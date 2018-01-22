@@ -17,6 +17,8 @@ var config = require('./config');
 var hDomain = (process.env.HOST_DOMAIN) ? process.env.HOST_DOMAIN : config.swaggerDomain;
 console.log("Informing Swagger client of host domain: "+hDomain);
 var yamlSource = './services/yaml/api.yml';
+const pack = require('./package.json');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -50,7 +52,7 @@ app.use(swagger.init(app, {
     swaggerUI: './public/swagger',
     schemes: [swagSchema],
     info: {
-        version: '1.0.0',
+        version: pack.version,
         title: 'UE Content Service',
         description: 'The Content Service allows you to store and retrieve organized frontend content as text or html.'
     },

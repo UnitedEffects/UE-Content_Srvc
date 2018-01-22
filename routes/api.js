@@ -4,6 +4,7 @@ var config = require('../config');
 var contentApi = require('../services/content/controller/api');
 var router = express.Router();
 var helper = require('../services/helper');
+const pack = require('../package.json');
 
 /* GET api listing. */
 router.get('/', function(req, res, next) {
@@ -11,9 +12,9 @@ router.get('/', function(req, res, next) {
         err: null,
         message: {
             api: 'UE-PC-Content_Srvc',
-            version: '1.0.0',
+            version: pack.version,
             baseURL: '/api',
-            copyright: 'Copyright (c) 2017 theBoEffect LLC'
+            copyright: 'Copyright (c) 2018 United Effects LLC'
         }
     });
 });

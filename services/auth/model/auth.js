@@ -38,7 +38,7 @@ var tokenSchema = new mongoose.Schema({
 
 // Execute before each user.save() call
 tokenSchema.pre('save', function(callback) {
-    console.log('saving');
+    //console.log('saving');
     var token = this;
 
     // Break out if the password hasn't changed

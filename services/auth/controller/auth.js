@@ -144,6 +144,19 @@ passport.use('social', new BearerStrategy(
     }
 ));
 
+function findToken (tokens, val) {
+    return new Promise(async function (resolve, reject) {
+        let theToken = null;
+        await Promise.all(tokens.map(async (token) => {
+            await token.verifyToken(val, (err, isMatch) => {
+                if(err) return reject(err);
+                if(isMatch) theToken = token;
+            });
+        }));
+        return resolve(theToken);
+    })
+}
+
 
 passport.use('bearer', new BearerStrategy(
     function(accessToken, callback) {
@@ -159,7 +172,11 @@ passport.use('bearer', new BearerStrategy(
 
             if(!product) return callback(null, false);
             if(!domain) return callback(null, false);
-            Token.findOneAsync({ user_id: userId, product_slug: product, domain_slug: domain })
+            Token.find({ user_id: userId, product_slug: product, domain_slug: domain })
+                .then(function(token){
+                    if(token.length===0) return null;
+                    return findToken(token, tokenVal);
+                })
                 .then(function (token) {
                     if (!token) {
                         getBearerToken(accessToken, function(err, result){
@@ -267,7 +284,11 @@ var authFactory = {
     isAuthenticated: passport.authenticate('basicWithCode', { session : false}),
     isChainedSocialBearer: passport.authenticate(['bearer','social'], {session: false}),
     saveToken: function (user, access, tokenVal, callback){
-        Token.findOneAndRemoveAsync({user_id: user._id, product_slug: access.product, domain_slug: access.domain})
+        Token.find({user_id: user._id, product_slug: access.product, domain_slug: access.domain})
+            .then((toks) => {
+                if(toks.length>5) return Token.remove({_id: toks[0]._id});
+                return true;
+            })
             .then(function(result){
                 var tCreated = user.token_created;
 
