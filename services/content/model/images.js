@@ -1,11 +1,9 @@
-/**
- * Created by borzou on 5/25/17.
- */
-var Promise = require('bluebird');
-var mongoose = Promise.promisifyAll(require('mongoose'));
-var searchPlugin = require('mongoose-search-plugin');
 
-var imageSchema = new mongoose.Schema({
+import mongoose from 'mongoose';
+mongoose.Promise = Promise;
+import searchPlugin from 'mongoose-search-plugin';
+
+const imageSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -41,9 +39,9 @@ var imageSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            description: {
+            id: {
                 type: String,
-                required: false
+                required: true
             }
         }
     ],
@@ -53,13 +51,11 @@ var imageSchema = new mongoose.Schema({
     }
 });
 
-imageSchema.pre('save', function(callback) {
-    return callback();
-});
+imageSchema.pre('save', callback=>callback());
 
 imageSchema.plugin(searchPlugin, {
     fields: ['name', 'description', 'tags']
 });
 
 // Export the Mongoose model
-module.exports = mongoose.model('Images', imageSchema);
+export default mongoose.model('Images', imageSchema);

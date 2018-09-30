@@ -1,17 +1,10 @@
-/**
- * Created by borzou on 2/4/17.
- */
-
-/**
- * Created by borzou on 9/27/16.
- */
-var Promise = require('bluebird');
-var mongoose = Promise.promisifyAll(require('mongoose'));
-var moment = require('moment');
-var searchPlugin = require('mongoose-search-plugin');
+import mongoose from 'mongoose';
+mongoose.Promise = Promise;
+import moment from 'moment';
+import searchPlugin from 'mongoose-search-plugin';
 
 // Define our user schema
-var contentSchema = new mongoose.Schema({
+const contentSchema = new mongoose.Schema({
     created: {
         type: Date,
         default: moment().format()
@@ -26,9 +19,12 @@ var contentSchema = new mongoose.Schema({
         required: false,
         unique: true
     },
+    /**
+     * Path is depreciated
+     */
     path: {
         type: String,
-        required: false
+        required: false,
     },
     tag: {
         type: String,
@@ -40,7 +36,7 @@ var contentSchema = new mongoose.Schema({
     },
     published: {
         type: Boolean,
-        default: false
+        default: true
     },
     active:{
         type: Boolean,
@@ -56,27 +52,22 @@ var contentSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            description: {
+            id: {
                 type: String,
-                required: false
+                required: true
             }
         }
     ],
     internal_description: {
         type: String,
-        required: true
+        required: false
     }
 });
 
-// Execute before each user.save() call
-contentSchema.pre('save', function(callback) {
-    console.log('content saved');
-    return callback();
-});
+contentSchema.pre('save', callback => callback());
 
 contentSchema.plugin(searchPlugin, {
     fields: ['title', 'internal_description', 'content']
 });
 
-// Export the Mongoose model
-module.exports = mongoose.model('Content', contentSchema);
+export default mongoose.model('Content', contentSchema);

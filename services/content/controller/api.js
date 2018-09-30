@@ -1,246 +1,199 @@
-/**
- * Created by borzou on 2/4/17.
- */
+import content from './content';
+import images from './images';
+import multipart from 'multiparty';
+import AWS from 'aws-sdk';
+import fs from 'fs';
+import request from 'request';
 
-var response = require('../../helper');
-var Promise = require('bluebird');
-var content = Promise.promisifyAll(require('./content'));
-var images = Promise.promisifyAll(require('./images'));
-var config = require('../../../config');
-var multipart = require('multiparty');
-var AWS = require('aws-sdk');
-var fs = require('fs');
-var send = require('../../callback');
-var request = require('request');
+import log from '../../log/logs';
+import response from '../../responder';
+import send from '../../response';
+import auth from '../../auth/auth';
 
-var postCardApi = {
-    create: function(req, res){
-        if(req.user.role!=1) return response.sendUnauthorized(res);
-        content.createAsync(req.body)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+const config = require('../../../config');
+
+const contentApi = {
+    create (req, res){
+        content.create(req.body)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'CREATE Content', error);
+                return response.send(res, error);
+            });
     },
-   returnOne: function(req, res, next){
-        content.returnOneAsync(req.params.id)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
+   returnOne (req, res, next){
+        content.returnOne(req.params.id)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                //log.detail('ERROR', 'RETURN one content', error);
                 return next();
-            })
+            });
     },
-    returnOneBySlug: function(req, res){
-        content.returnOneBySlugAsync(req.params.slug)
-            .then(function(output){
-                return response.sendJson(res, output);
+    returnOneBySlug (req, res){
+        content.returnOneBySlug(req.params.slug)
+            .then((output) => {
+                if(output.data.auth_required) if(!req.user) return response.send(res, send.fail401("This content requires authenticated access through a secured endpoint (/api/content/:slug)"));
+                return response.send(res, output)
             })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+            .catch((error) => {
+                log.detail('ERROR', 'Return one content by slug', error);
+                return response.send(res, error);
+            });
     },
-    returnOneBySlugSecure: function(req, res){
-        content.returnOneBySlugSecureAsync(req.params.slug)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    returnAll (req, res){
+        const tag = req.query.tag || null;
+        content.returnAll(tag)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Return all content', error);
+                return response.send(res, error);
+            });
     },
-    returnAll: function(req, res){
-        var tag = (req.query.tag) ? req.query.tag : null;
-        content.returnAllAsync(tag)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
-    },
-    patchOne: function(req, res){
-        if(req.user.role!=1) return response.sendUnauthorized(res);
+    patchOne (req, res){
         if(req.body.categories) delete req.body.categories;
-        content.patchOneAsync(req.params.id, req.body)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+        content.patchOne(req.params.id, req.body)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Patch one content', error);
+                return response.send(res, error);
+            });
     },
-    addCategory: function(req, res){
-        if(req.user.role!=1) return response.sendUnauthorized(res);
-        content.returnOneCategoryByNameAsync(req.body.name)
-            .then(function(result){
-                if(!result) return resonse.sendJson(res, {err: 404, data: 'The category you are attempting to add, does not exist. Please add it to the system first.'});
-                return content.addCategoryAsync(req.params.id, {name: result.data.name, description: result.data.description})
+    addCategory (req, res){
+        content.returnOneCategoryByName(req.body.name)
+            .then((result) => {
+                if(!result) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
+                return content.addCategory(req.params.id, {name: result.data.name, description: result.data.description})
             })
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Add Category to content', error);
+                return response.send(res, error);
+            });
     },
-    removeCategory: function(req, res){
-        if(req.user.role!=1) return response.sendUnauthorized(res);
-        content.removeCategoryAsync(req.params.id, req.params.name)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    removeCategory (req, res){
+        content.removeCategory(req.params.id, req.params.name)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Remove Category from content', error);
+                return response.send(res, error);
+            });
     },
-    deleteOne: function(req, res){
-        if(req.user.role!=1) return response.sendUnauthorized(res);
-        content.deleteOneAsync(req.params.id)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    deleteOne (req, res){
+        content.deleteOne(req.params.id)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Delete Content', error);
+                return response.send(res, error);
+            });
     },
-    getCategories: function(req, res){
-        content.getCategoriesAsync(req.params.id)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    getCategories (req, res){
+        content.getCategories(req.params.id)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Get all Categories for one content id', error);
+                return response.send(res, error);
+            });
     },
-    getContentByCategory: function(req, res){
-        content.getContentByCategoryAsync(req.params.name)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    getContentByCategory (req, res){
+        content.getContentByCategory(req.params.name)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Get Content by Category', error);
+                return response.send(res, error);
+            });
     },
-    searchContent: function(req, res){
-        var active = (req.query.active) ? req.query.active : true;
-        content.searchContentAsync(req.query.q, active)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    searchContent (req, res){
+        const active = req.query.active || true;
+        content.searchContent(req.query.q, active)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Search Content', error);
+                return response.send(res, error);
+            });
     },
-    returnAllCategories: function(req, res){
-        content.returnAllCategoriesAsync()
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    returnAllCategories (req, res){
+        content.returnAllCategories()
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Return all categories', error);
+                return response.send(res, error);
+            });
     },
-    returnOneCategory: function(req, res){
-        content.returnOneCategoryAsync(req.params.id)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    returnOneCategory (req, res){
+        content.returnOneCategory(req.params.id)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'Return one category', error);
+                return response.send(res, error);
+            });
     },
-    returnOneCategoryByName: function(req, res){
-        content.returnOneCategoryByNameAsync(req.params.name)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    returnOneCategoryByName (req, res){
+        content.returnOneCategoryByName(req.params.name)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'returnOneCategoryByName', error);
+                return response.send(res, error);
+            });
     },
-    searchCategory: function(req, res){
-        content.searchCategoryAsync(req.query.q)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    searchCategory (req, res){
+        content.searchCategory(req.query.q)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'searchCategory', error);
+                return response.send(res, error);
+            });
     },
-    createCategory: function(req, res){
-        if(req.user.role!=1) return response.sendUnauthorized(res);
-        content.createCategoryAsync(req.body)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    createCategory (req, res){
+        content.createCategory(req.body)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'createCategory', error);
+                return response.send(res, error);
+            });
     },
-    removeOneCategory: function(req, res){
-        if(req.user.role!=1) return response.sendUnauthorized(res);
-        content.removeOneCategoryAsync(req.params.id)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    removeOneCategory (req, res){
+        content.removeOneCategory(req.params.id)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'removeOneCategory', error);
+                return response.send(res, error);
+            });
     },
-    publicServe: function(req, res, next){
-        content.returnOneBySlugAsync(req.params.slug)
-            .then(function(output){
-                return res.send(output.data.content);
-            })
-            .catch(function(error){
+    publicServe (req, res, next){
+        content.returnOneBySlug(req.params.slug)
+            .then(output => res.send(output.data.content))
+            .catch((error) => {
                 next();
-            })
+            });
     },
     //images...
-    addImage: function(req, res){
-        var s3Client = new AWS.S3({
-            accessKeyId: config.S3_Key,
-            secretAccessKey: config.S3_Secret
+    addImage (req, res){
+        const s3Client = new AWS.S3({
+            accessKeyId: config.S3_KEY,
+            secretAccessKey: config.S3_SECRET
         });
+        const dateNow = `${Date.now()}-${uid(10)}`;
+        const form = new multipart.Form();
 
-        var form = new multipart.Form();
-        const dateNow = Date.now();
         form.parse(req, function(error, fields, files){
-            var myFile = files.file[0];
-            var metaData = getContentTypeByFile(myFile.originalFilename);
+            let myFile = {};
+            if(files) {
+                myFile = files.file[0];
+            } else return response.send(res, {code: 400, data: {message: 'The file you attempted to upload was not defined', fields: fields, files: files}});
+            const metaData = getContentTypeByFile(myFile.originalFilename);
             s3Client.upload({
-                Bucket: config.S3_Bucket,
-                Key: req.user._id+'_'+files.file[0]+'_'+dateNow+'_'+myFile.originalFilename,
+                Bucket: config.S3_BUCKET,
+                Key: `${req.user._id}_${fields.name[0]}_${dateNow}_${myFile.originalFilename}`,
                 ACL: 'public-read',
                 Body: fs.createReadStream(myFile.path),
                 ContentType: metaData
             }, function (err, data) {
-                if (err) return response.sendJson(res, send.failErr(err));
-                if (!fields.description) return response.sendJson(res, send.fail417('Missing Description'));
-                if (!fields.name) return response.sendJson(res, send.fail417('Missing Description'));
+                if (err) return response.send(res, send.fail400(err));
+                if (!fields.description) return response.send(res, send.fail422('Missing Description'));
+                if (!fields.name) return response.send(res, send.fail422('Missing Description'));
                 fs.unlinkSync(myFile.path);
-                var options = {
-                    name: req.user._id+'_'+files.file[0]+'_'+dateNow || req.user._id+'_'+dateNow,
+                const options = {
+                    name: `${req.user._id}_${fields.name[0]}_${dateNow}` || `${req.user._id}_${dateNow}`,
                     description: fields.description[0] || null,
                     url: data.Location,
                     owner: req.user._id,
@@ -248,143 +201,127 @@ var postCardApi = {
                     meta: data
                 };
 
-                images.addImageAsync(options)
-                    .then(function(output){
-                        return response.sendJson(res, output);
-                    })
-                    .catch(function(error){
-                        return response.sendJson(res, error);
-                    })
+                images.addImage(options)
+                    .then(output => response.send(res, output))
+                    .catch((error) => {
+                        log.detail('ERROR', 'addImage', error);
+                        return response.send(res, error);
+                    });
             });
         })
     },
-    imageProxy: function(req, res){
-        images.getImageInfoBySlugAsync(req.params.slug)
-            .then(function(output){
-                return request.get(output.data.url).pipe(res);
-            })
-            .catch(function(error){
-                return response.sendJson(res, error);
-            })
+    imageProxy (req, res){
+        images.getImageInfoBySlug(req.params.slug)
+            .then(output => request.get(output.data.url).pipe(res))
+            .catch((error) => {
+                log.detail('ERROR', 'imageProxy', error);
+                return response.send(res, error);
+            });
     },
-    getImage: function(req, res){
-        images.getImageInfoAsync(req.params.id)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                return response.sendJson(res, error);
-            })
+    getImage (req, res){
+        images.getImageInfo(req.params.id)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'getImage', error);
+                return response.send(res, error);
+            });
     },
-    updateImage: function(req, res){
-        images.getImageInfoAsync(req.params.id)
-            .then(function(img){
-                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
-                return images.updateImageAsync(req.params.id, req.body)
+    updateImage (req, res){
+        images.getImageInfo(req.params.id)
+            .then((img)=>{
+                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                return images.updateImage(req.params.id, req.body)
             })
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                return response.sendJson(res, error);
-            })
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'updateImage', error);
+                return response.send(res, error);
+            });
     },
-    removeImage: function(req, res){
+    removeImage (req, res){
         //leaving S3 alone...
-        images.getImageInfoAsync(req.params.id)
+        images.getImageInfo(req.params.id)
+            .then((img) => {
+                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                return images.removeImage(req.params.id)
+            })
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'removeImage', error);
+                return response.send(res, error);
+            });
+    },
+    getImages (req, res){
+        images.getAllImages()
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'getImages', error);
+                return response.send(res, error);
+            });
+    },
+    searchImages (req, res){
+        images.searchImages(req.query.q)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'searchImages', error);
+                return response.send(res, error);
+            });
+    },
+    addImageCategory (req, res){
+        images.getImageInfo(req.params.id)
+            .then((img) => {
+                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                return content.returnOneCategoryByName(req.body.name)
+            })
+            .then((result) => {
+                if(result.code) return result;
+                if(!result) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
+                return images.addImageCategory(req.params.id, {name: result.data.name, description: result.data.description});
+            })
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'addImageCategory', error);
+                return response.send(res, error);
+            });
+    },
+    removeImageCategory (req, res){
+        images.getImageInfo(req.params.id)
             .then(function(img){
-                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
-                return images.removeImageAsync(req.param.id)
-            })
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                return response.sendJson(res, error);
-            })
-    },
-    getImages: function(req, res){
-        images.getAllImagesAsync()
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                return response.sendJson(res, error);
-            })
-    },
-    searchImages: function(req, res){
-        images.searchImagesAsync(req.query.q)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
-    },
-    addImageCategory: function(req, res){
-        images.getImageInfoAsync(req.params.id)
-            .then(function(img){
-                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
-                return content.returnOneCategoryByNameAsync(req.body.name)
+                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                return content.returnOneCategoryByName(req.params.name)
             })
             .then(function(result){
-                if(result.err) return result;
+                if(result.code) return result;
                 if(!result) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
-                return images.addImageCategoryAsync(req.params.id, {name: result.data.name, description: result.data.description})
+                return images.removeImageCategory(req.params.id, req.params.name)
             })
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'removeImageCategory', error);
+                return response.send(res, error);
+            });
     },
-    removeImageCategory: function(req, res){
-        images.getImageInfoAsync(req.params.id)
-            .then(function(img){
-                if(req.user.role!=1 && req.user._id!=img.owner) return send.fail401();
-                return content.returnOneCategoryByNameAsync(req.params.name)
-            })
-            .then(function(result){
-                if(result.err) return result;
-                if(!result) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
-                return images.removeImageCategoryAsync(req.params.id, req.params.name)
-            })
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    getImageCategories (req, res){
+        images.getImageCategories(req.params.id)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'getImageCategories', error);
+                return response.send(res, error);
+            });
     },
-    getImageCategories: function(req, res){
-        images.getImageCategoriesAsync(req.params.id)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
-    },
-    getImagesByCategory: function(req, res){
-        images.getImagesByCategoryAsync(req.params.name)
-            .then(function(output){
-                return response.sendJson(res, output);
-            })
-            .catch(function(error){
-                if(error.stack) console.log(error.stack);
-                return response.sendJson(res, error);
-            })
+    getImagesByCategory (req, res){
+        images.getImagesByCategory(req.params.name)
+            .then(output => response.send(res, output))
+            .catch((error) => {
+                log.detail('ERROR', 'getImagesByCategory', error);
+                return response.send(res, error);
+            });
     }
 };
 
 function getContentTypeByFile(fileName) {
-    var rc = 'application/octet-stream';
-    var fn = fileName.toLowerCase();
+    let rc = 'application/octet-stream';
+    const fn = fileName.toLowerCase();
 
     if (fn.indexOf('.html') >= 0) rc = 'text/html';
     else if (fn.indexOf('.css') >= 0) rc = 'text/css';
@@ -396,4 +333,20 @@ function getContentTypeByFile(fileName) {
     return rc;
 }
 
-module.exports = postCardApi;
+function uid (len) {
+    const buf = []
+        , chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        , charlen = chars.length;
+
+    for (let i = 0; i < len; ++i) {
+        buf.push(chars[getRandomInt(0, charlen - 1)]);
+    }
+
+    return buf.join('');
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export default contentApi;

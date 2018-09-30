@@ -1,20 +1,17 @@
 # Project Freedom
 # UE Postcard Content IMAGE
-# Copyright 2017
+# Copyright 2018
 
-FROM mhart/alpine-node
-LABEL author="borzou@theboeffect.com"
-RUN apk update
-RUN apk add git
+FROM mhart/alpine-node:9
+LABEL owner="bmotlagh@unitedeffects.com"
+
 RUN mkdir /src
-
 COPY . /src
 WORKDIR /src
-RUN mv /src/config_changeme.js /src/config.js
-RUN npm install bower -g
-RUN npm install
-RUN bower install --allow-root
+
+RUN mv /src/config-changeme.js /src/config.js
+RUN yarn
 
 EXPOSE 3010
 
-CMD ["node", "./bin/www"]
+CMD ["yarn", "start"]

@@ -1,191 +1,177 @@
-/**
- * Created by borzou on 2/4/17.
- */
-var Promise = require('bluebird');
-var Content = Promise.promisifyAll(require('../model/content'));
-var Category = Promise.promisifyAll(require('../model/categories'));
-var send = require('../../callback');
-var moment = require('moment');
+import Content from '../model/content';
+import Category from '../model/categories';
+import send from '../../response';
 
-var postCardFactory = {
-    create: function(options, cb){
-        options['publish'] = false;
-        options['categories'] = [{
-            name: 'all',
-            description: 'root category'
-        }];
-        if(!options.slug) options.slug = options.title.replace(" ", "_").toLowerCase();
-        else options.slug = options.slug.replace(" ", "_").toLowerCase();
-        var content = new Content(options);
-
-        content.saveAsync()
-            .then(function(saved){return cb(null, send.success(saved));})
-            .catch(function (err) {return cb(send.failErr(err), null);});
+const contentFactory = {
+    create (options){
+        return new Promise((resolve, reject) => {
+            options["slug"] = options.title.trim().toLowerCase().replace(/ /g, "_").replace(/\./g, "").replace(/!/g, "").replace(/\?/g, "").replace(/{/g, "").replace(/}/g, "");
+            const content = new Content(options);
+            content.save()
+                .then(saved => resolve(send.set200(saved)))
+                .catch((err) => {
+                    if(err.code===11000) return reject(send.fail409({ message: 'duplicate', request: options }));
+                    return reject(send.fail400(err));
+                });
+        });
     },
-    returnOne: function(id, cb){
-        Content.findOneAsync({_id:id})
-            .then(function(result){
-                if(!result) return cb(send.fail404("Content not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    returnOne (id){
+        return new Promise((resolve, reject) => {
+            Content.findOne({_id:id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Content not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    returnOneBySlug: function(slug, cb){
-        Content.findOneAsync({slug:slug})
-            .then(function(result){
-                if(!result) return cb(send.fail404("Content not found: "+slug), null);
-                if(result.auth_required) return cb(send.fail403("This endpoint is not secure but the content requested is. Please use the secure endpoint: /api/content/{slug}"), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    returnOneBySlug (slug){
+        return new Promise((resolve, reject) => {
+            Content.findOne({slug:slug})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Content not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    returnOneBySlugSecure: function(slug, cb){
-        Content.findOneAsync({slug:slug})
-            .then(function(result){
-                if(!result) return cb(send.fail404("Content not found: "+slug), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    returnAll (tag){
+        return new Promise((resolve, reject) => {
+            let query = {};
+            if(tag) query = {tag:tag};
+            Content.find(query)
+                .then(result => resolve(send.set200(result)))
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    returnAll: function(tag, cb){
-        var query = {};
-        if(tag) query = {tag:tag};
-        Content.findAsync(query)
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    patchOne (id, options){
+        return new Promise((resolve, reject) => {
+            if(options.title) options["slug"] = options.title.trim().toLowerCase().replace(/ /g, "_").replace(/\./g, "").replace(/!/g, "").replace(/\?/g, "").replace(/{/g, "").replace(/}/g, "");
+            Content.findOneAndUpdate({_id:id}, options, {new:true})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Content not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    patchOne: function(id, options, cb){
-        Content.findOneAndUpdateAsync({_id:id}, options, {new:true})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    deleteOne (id){
+        return new Promise((resolve, reject) => {
+            Content.findOneAndRemove({_id:id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Content not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    deleteOne: function(id, cb){
-        Content.findOneAndRemoveAsync({_id:id})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    addCategory (id, option){
+        return new Promise((resolve, reject) => {
+            Content.findOneAndUpdate({_id:id}, {$push:{categories: option}},{new:true})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Content not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    addCategory: function(id, option, cb){
-        Content.findOneAndUpdateAsync({_id:id}, {$push:{categories: option}},{new:true})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    removeCategory (id, name){
+        return new Promise((resolve, reject) => {
+            Content.findOneAndUpdate({_id:id}, {$pull:{categories:{name: name}}},{new:true})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Content not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    removeCategory: function(id, name, cb){
-        Content.findOneAndUpdateAsync({_id:id}, {$pull:{categories:{name: name}}},{new:true})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    getContentByCategory (name){
+        return new Promise((resolve, reject) => {
+            Content.find({'categories.name': name})
+                .then(result => resolve(send.set200(result)))
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    getContentByCategory: function(name, cb){
-        Content.findAsync({'categories.name': name})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    getCategories (id){
+        return new Promise((resolve, reject) => {
+            Content.findOne({_id:id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Content not found'));
+                    return resolve(send.set200(result.categories));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    getCategories: function(id, cb){
-        Content.findOneAsync({_id:id})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result.categories));
+    searchContent (q, active){
+        return new Promise((resolve, reject) => {
+            Content.search(q, {title: 1, internal_description: 1, message: 1}, {conditions: {active: active}, sort: {title: 1}, limit: 40}, (err,data) => {
+                if(err) return reject(send.fail400(err));
+                return resolve(send.set200(data.results));
             })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+        });
     },
-    searchContent: function(q, active, cb){
-        Content.searchAsync(q, {title: 1, internal_description: 1, message: 1}, {conditions: {active: active}, sort: {title: 1}, limit: 40})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    returnAllCategories (){
+        return new Promise((resolve, reject) => {
+            Category.find({})
+                .then(result => resolve(send.set200(result)))
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    returnAllCategories: function(cb){
-        Category.findAsync({})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    returnOneCategory (id){
+        return new Promise((resolve, reject) => {
+            Category.findOne({_id:id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Category not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    returnOneCategory: function(id, cb){
-        Category.findOneAsync({_id:id})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    returnOneCategoryByName (name){
+        return new Promise((resolve, reject) => {
+            const sName = name.toLowerCase();
+            Category.findOne({name:sName})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Category not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    returnOneCategoryByName: function(name, cb){
-        Category.findOneAsync({name:name})
-            .then(function(result){
-                if(!result) return cb(send.fail404("Name not found: "+name), null);
-                return cb(null, send.success(result));
+    searchCategory (q){
+        return new Promise((resolve, reject) => {
+            Category.search(q, {name: 1, description: 1}, {conditions: {name: {$exists: true}}, sort: {name: 1}, limit: 40}, (err, data) => {
+                if(err) return reject(send.fail400(err));
+                return resolve(send.set200(data.results));
             })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+        });
     },
-    searchCategory: function(q, cb){
-        Category.searchAsync(q, {name: 1, description: 1}, {conditions: {name: {$exists: true}}, sort: {name: 1}, limit: 40})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    createCategory (option){
+        return new Promise((resolve, reject) => {
+            option.pretty_name = option.name;
+            if(option.type) {
+                option.name = `${option.type}: ${option.name}`.toLowerCase();
+                option.type = option.type.toLowerCase();
+            } else option.name = `content: ${option.name}`.toLowerCase();
+            const category = new Category(option);
+            category.save()
+                .then(result => resolve(send.set200(result)))
+                .catch((error) => {
+                    if(error.code===11000) return reject(send.fail409({ message: 'duplicate', request: option }));
+                    return reject(send.fail400(error))
+                });
+        });
     },
-    createCategory: function(option, cb){
-        var category = new Category(option);
-
-        category.saveAsync()
-            .then(function(saved){return cb(null, send.success(saved));})
-            .catch(function (err) {return cb(send.failErr(err), null);});
-    },
-    removeOneCategory: function(id, cb){
-        Category.findOneAndRemove({_id:id})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    removeOneCategory (id){
+        return new Promise((resolve, reject) => {
+            Category.findOneAndRemove({_id:id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Category not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     }
 };
 
-module.exports = postCardFactory;
+module.exports = contentFactory;

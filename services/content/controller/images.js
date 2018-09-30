@@ -1,121 +1,114 @@
-/**
- * Created by borzou on 5/25/17.
- */
-var Promise = require('bluebird');
-var Images = Promise.promisifyAll(require('../model/images'));
-var send = require('../../callback');
+import Images from '../model/images';
+import send from '../../response';
 
-var imageFactory = {
-    addImage: function(options, cb){
-        options["slug"] = options.name.trim().toLowerCase().replace(/ /g, "_").replace(/\./g, "").replace(/!/g, "").replace(/\?/g, "").replace(/{/g, "").replace(/}/g, "");
-        var image = new Images(options);
+const imageFactory = {
+    addImage (options){
+        return new Promise ((resolve, reject) => {
+            options["slug"] = options.name.trim().toLowerCase().replace(/ /g, "_").replace(/\./g, "").replace(/!/g, "").replace(/\?/g, "").replace(/{/g, "").replace(/}/g, "");
+            const image = new Images(options);
 
-        image.saveAsync()
-            .then(function(saved){
-                return cb(null, send.success(saved));
-            })
-            .catch(function (err) {
-                if(err.code==11000) return cb(send.fail409("An image with this name already exists"), null);
-                return cb(send.failErr(err), null);
-            });
+            image.save()
+                .then(saved => resolve(send.set200(saved)))
+                .catch((err) => {
+                    if(err.code===11000) return reject(send.fail409({request: options, error: err, message: "An image with this name already exists"}));
+                    return reject(send.fail400(err));
+                });
+        })
     },
-    updateImage: function(id, options, cb){
-        Images.findOneAndUpdate({_id: id}, options, {new:true})
-            .then(function(saved){
-                if(!saved) cb (send.fail404("Image not found"), null);
-                return cb(null, send.success(saved));
-            })
-            .catch(function (err) {
-                if(err.code==11000) return cb(send.fail409("An image with this name already exists"), null);
-                return cb(send.failErr(err), null);
-            });
+    updateImage (id, options){
+        return new Promise((resolve, reject) => {
+            Images.findOneAndUpdate({_id: id}, options, {new:true})
+                .then((saved) => {
+                    if(!saved) return reject(send.fail404("Image not found"));
+                    return resolve(send.set200(saved));
+                })
+                .catch((err) => {
+                    if(err.code===11000) return reject(send.fail409("An image with this name already exists"));
+                    return reject(send.fail400(err));
+                });
+        })
     },
-    removeImage: function(id, cb){
-        Images.findOneAndRemove({_id: id})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function (err) {
-                return cb(send.failErr(err), null);
-            });
-
+    removeImage (id){
+        return new Promise((resolve, reject) => {
+            Images.findOneAndRemove({_id: id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Image not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        })
     },
-    getImageInfo: function(id, cb){
-        Images.findOne({_id: id})
-            .then(function(result){
-                if(!result) cb(send.fail404("Image Not Found"), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function (err) {
-                return cb(send.failErr(err), null);
-            });
+    getImageInfo (id){
+        return new Promise((resolve, reject) => {
+            Images.findOne({_id: id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Image not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    getImageInfoBySlug: function(slug, cb){
-        Images.findOne({slug: slug})
-            .then(function(result){
-                if(!result) cb(send.fail404("Image Not Found"), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function (err) {
-                return cb(send.failErr(err), null);
-            });
+    getImageInfoBySlug (slug){
+        return new Promise((resolve, reject) => {
+            Images.findOne({slug: slug})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Image not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    getAllImages: function(cb){
-        Images.find({})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function (err) {
-                return cb(send.failErr(err), null);
-            });
+    getAllImages (){
+        return new Promise((resolve, reject) => {
+            Images.find({})
+                .then(result => resolve(send.set200(result)))
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    searchImages: function(q, cb){
-        Images.searchAsync(q, {name: 1, slug: 1, description: 1, tags: 1, url: 1}, {conditions: {name: {$exists: true}}, sort: {name: 1}, limit: 100})
-            .then(function(result){
-                return cb(null, send.success(result));
+    searchImages (q){
+        return new Promise((resolve, reject) => {
+            Images.search(q, {name: 1, slug: 1, description: 1, tags: 1, url: 1}, {conditions: {name: {$exists: true}}, sort: {name: 1}, limit: 100}, (err, data) => {
+                if(err) return reject(send.fail400(err));
+                return resolve(send.set200(data.results));
             })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+        });
     },
-    addImageCategory: function(id, option, cb){
-        Images.findOneAndUpdateAsync({_id:id}, {$push:{categories: option}},{new:true})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    addImageCategory (id, option){
+        return new Promise((resolve, reject) => {
+            Images.findOneAndUpdate({_id:id}, {$push:{categories: option}},{new:true})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Image not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    removeImageCategory: function(id, name, cb){
-        Images.findOneAndUpdateAsync({_id:id}, {$pull:{categories:{name: name}}},{new:true})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    removeImageCategory (id, name){
+        return new Promise((resolve, reject) => {
+            Images.findOneAndUpdate({_id:id}, {$pull:{categories:{name: name}}},{new:true})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Image not found'));
+                    return resolve(send.set200(result));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    getImageCategories: function(id, cb){
-        Images.findOneAsync({_id:id})
-            .then(function(result){
-                if(!result) return cb(send.fail404("ID not found: "+id), null);
-                return cb(null, send.success(result.categories));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    getImageCategories (id){
+        return new Promise((resolve, reject) => {
+            Images.findOne({_id:id})
+                .then((result) => {
+                    if(!result) return reject(send.fail404('Image not found'));
+                    return resolve(send.set200(result.categories));
+                })
+                .catch(error => reject(send.fail400(error)));
+        });
     },
-    getImagesByCategory: function(name, cb){
-        Images.findAsync({'categories.name': name})
-            .then(function(result){
-                return cb(null, send.success(result));
-            })
-            .catch(function(error){
-                return cb(send.failErr(error), null);
-            })
+    getImagesByCategory (name){
+        return new Promise((resolve, reject) => {
+            Images.find({'categories.name': name})
+                .then(result=> resolve(send.set200(result)))
+                .catch(error => reject(send.fail400(error)));
+        });
     }
 };
 
