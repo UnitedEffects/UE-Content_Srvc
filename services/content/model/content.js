@@ -9,6 +9,7 @@ const contentSchema = new mongoose.Schema({
         type: Date,
         default: moment().format()
     },
+    owner: mongoose.Schema.Types.ObjectId,
     title: {
         type: String,
         required: true,

@@ -49,42 +49,48 @@ const contentApi = {
                 return response.send(res, error);
             });
     },
-    patchOne (req, res){
-        if(req.body.categories) delete req.body.categories;
-        content.patchOne(req.params.id, req.body)
-            .then(output => response.send(res, output))
-            .catch((error) => {
-                log.detail('ERROR', 'Patch one content', error);
-                return response.send(res, error);
-            });
+    async patchOne (req, res){
+        try {
+            if(req.body.categories) delete req.body.categories;
+            const cont = await content.returnOne(req.params.id);
+            if(req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            return response.send(res, await content.patchOne(req.params.id, req.body));
+        } catch (error) {
+            log.detail('ERROR', 'Patch one content', error);
+            return response.send(res, error);
+        }
     },
-    addCategory (req, res){
-        content.returnOneCategoryByName(req.body.name)
-            .then((result) => {
-                if(!result) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
-                return content.addCategory(req.params.id, {name: result.data.name, description: result.data.description})
-            })
-            .then(output => response.send(res, output))
-            .catch((error) => {
-                log.detail('ERROR', 'Add Category to content', error);
-                return response.send(res, error);
-            });
+    async addCategory (req, res){
+        try {
+            const cont = await content.returnOne(req.params.id);
+            if(req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            const cat = await content.returnOneCategoryByName(req.body.name);
+            if(!cat) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
+            return response.send(res, await content.addCategory(req.params.id, {name: cat.data.name, description: cat.data.description}));
+        } catch (error) {
+            log.detail('ERROR', 'Add Category to content', error);
+            return response.send(res, error);
+        }
     },
-    removeCategory (req, res){
-        content.removeCategory(req.params.id, req.params.name)
-            .then(output => response.send(res, output))
-            .catch((error) => {
-                log.detail('ERROR', 'Remove Category from content', error);
-                return response.send(res, error);
-            });
+    async removeCategory (req, res){
+        try {
+            const cont = await content.returnOne(req.params.id);
+            if(req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            return response.send(res, await content.removeCategory(req.params.id, req.params.name));
+        } catch (error) {
+            log.detail('ERROR', 'Remove Category from content', error);
+            return response.send(res, error);
+        }
     },
-    deleteOne (req, res){
-        content.deleteOne(req.params.id)
-            .then(output => response.send(res, output))
-            .catch((error) => {
-                log.detail('ERROR', 'Delete Content', error);
-                return response.send(res, error);
-            });
+    async deleteOne (req, res){
+        try {
+            const cont = await content.returnOne(req.params.id);
+            if(req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            return response.send(res, await content.deleteOne(req.params.id));
+        } catch (error) {
+            log.detail('ERROR', 'Delete Content', error);
+            return response.send(res, error);
+        }
     },
     getCategories (req, res){
         content.getCategories(req.params.id)
@@ -229,7 +235,7 @@ const contentApi = {
     updateImage (req, res){
         images.getImageInfo(req.params.id)
             .then((img)=>{
-                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                if(req.user._id!==img.owner && req.user.role !== 1) return send.fail401();
                 return images.updateImage(req.params.id, req.body)
             })
             .then(output => response.send(res, output))
@@ -242,7 +248,7 @@ const contentApi = {
         //leaving S3 alone...
         images.getImageInfo(req.params.id)
             .then((img) => {
-                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                if(req.user._id!==img.owner && req.user.role !== 1) return send.fail401();
                 return images.removeImage(req.params.id)
             })
             .then(output => response.send(res, output))
@@ -270,7 +276,7 @@ const contentApi = {
     addImageCategory (req, res){
         images.getImageInfo(req.params.id)
             .then((img) => {
-                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                if(req.user._id!==img.owner && req.user.role !== 1) return send.fail401();
                 return content.returnOneCategoryByName(req.body.name)
             })
             .then((result) => {
@@ -287,7 +293,7 @@ const contentApi = {
     removeImageCategory (req, res){
         images.getImageInfo(req.params.id)
             .then(function(img){
-                if(req.user._id!==img.owner && !auth.thisValidProductAdmin(req.user, config.PRODUCT_SLUG)) return send.fail401();
+                if(req.user._id!==img.owner && req.user.role !== 1) return send.fail401();
                 return content.returnOneCategoryByName(req.params.name)
             })
             .then(function(result){
