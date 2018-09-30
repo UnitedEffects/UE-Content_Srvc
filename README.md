@@ -1,22 +1,11 @@
 # UE-Content_Srvc
 This service allows you to create and store content (text or html) to be utilized on web pages.
 
-## Documentation
-
-https://github.com/UnitedEffects/UE-Content_Srvc/wiki/Documentation
-
-## Docker
-
-* docker pull unitedeffects/ue-content:latest
-* docker run -p 3010:3010 -e MONGO=mongodb://localhost:27017/ue-content -e SWAG_DOM=localhost:3010 -e unitedeffects/ue-content:latest
-
-API documentation at http://localhost:3010
-
 ## Local
 
 * clone this repo
-* npm install
-* npm start
+* yarn
+* yarn run dev
 
 API documentation at http://localhost:3010
 
@@ -24,10 +13,13 @@ API documentation at http://localhost:3010
 
 https://contentqa.unitedeffects.com
 
+## Documentation
+
+https://contentqa.unitedeffects.com/api
 
 ## MIT License
 
-Copyright (c) 2018 United Effects LLC
+Copyright (c) 2018 theBoEffect LLC (DBA United Effects)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

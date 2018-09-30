@@ -13,7 +13,7 @@ import index from './routes/index';
 import api from './routes/api_v2';
 
 const app = express();
-const debug = Debug('tje-content_srvc:app');
+const debug = Debug('ue-content:app');
 app.set('views', path.join(__dirname, 'views'));
 // view engine setup
 app.set('view engine', 'pug');
