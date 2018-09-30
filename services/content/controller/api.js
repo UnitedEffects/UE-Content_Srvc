@@ -14,6 +14,7 @@ const config = require('../../../config');
 
 const contentApi = {
     create (req, res){
+        req.body.owner = req.user._id;
         content.create(req.body)
             .then(output => response.send(res, output))
             .catch((error) => {
