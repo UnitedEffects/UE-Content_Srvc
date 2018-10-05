@@ -59,7 +59,6 @@
     "pug": "^2.0.0-rc.3",
     "request": "^2.83.0",
     "serve-favicon": "^2.4.3",
-    "serverless-google-cloudfunctions": "^2.0.0",
     "serverless-http": "^1.6.0",
     "yamljs": "^0.3.0"
   },
@@ -74,7 +73,6 @@
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-mocha": "^4.11.0",
     "eslint-plugin-react": "^7.2.1",
-    "mocha": "^3.3.0",
-    "serverless-offline": "^3.27.0"
+    "mocha": "^3.3.0"
   }
 }
