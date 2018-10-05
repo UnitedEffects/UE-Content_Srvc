@@ -1,0 +1,14 @@
+service: ue-content-v2
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+
+functions:
+  app:
+    handler: bin/slsapp.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'

@@ -7,18 +7,14 @@ import path from 'path';
 import respond from './services/responder';
 import response from './services/response';
 
-// import favicon from 'serve-favicon';
-
 import index from './routes/index';
 import api from './routes/api_v2';
 
 const app = express();
 const debug = Debug('ue-content:app');
 app.set('views', path.join(__dirname, 'views'));
-// view engine setup
 app.set('view engine', 'pug');
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -63,7 +59,7 @@ process.on('uncaughtException', (err) => {
     debug('Caught exception: %j', err);
     uncaught += 1;
     if (uncaught < 20) {
-        console.error({error: "UNCAUGHT EXCEPTION - Uncaught #: "+uncaught+". Notifications will stop after 20 exceptions. Restart this container after that.", stack: err.stack || err.message});
+        console.error({ error: `UNCAUGHT EXCEPTION - Uncaught #: ${uncaught}. Notifications will stop after 20 exceptions. Restart this container after that.`, stack: err.stack || err.message });
     } else process.exit(1);
 });
 
