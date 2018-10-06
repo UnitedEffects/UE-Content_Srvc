@@ -6,9 +6,23 @@ provider:
   stage: dev
   region: us-east-1
 
+package:
+  exclude:
+    - src/**
+
+plugins:
+ - serverless-domain-manager
+
+custom:
+ customDomain:
+   domainName: 'test.unitedeffects.com'
+   basePath: ''
+   stage: ${self:provider.stage}
+   createRoute53Record: true
+
 functions:
   app:
-    handler: bin/slsapp.handler
+    handler: dist/bin/slsapp.handler
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'

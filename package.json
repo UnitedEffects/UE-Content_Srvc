@@ -3,10 +3,13 @@
   "version": "2.0.0",
   "description": "A microservice to store and serve content to a UI.",
   "scripts": {
-    "start": "node ./bin/start",
-    "dev": "nodemon ./bin/start",
-    "build": "babel lib -d dist",
-    "test": "mocha --recursive './test/*Test.js' --compilers js:babel-core/register",
+    "start": "node ./src/bin/start.js",
+    "dev": "nodemon ./src/bin/start.js",
+    "dist": "nodemon ./dist/bin/start.js",
+    "build": "yarn && babel src -d dist",
+    "package": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls package",
+    "deploy": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls deploy",
+    "test": "mocha --recursive './src/test/*Test.js' --compilers js:babel-core/register",
     "lintFix": "eslint . --fix"
   },
   "contributors": [
@@ -59,6 +62,7 @@
     "pug": "^2.0.0-rc.3",
     "request": "^2.83.0",
     "serve-favicon": "^2.4.3",
+    "serverless-domain-manager": "^2.6.5",
     "serverless-http": "^1.6.0",
     "yamljs": "^0.3.0"
   },

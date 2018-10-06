@@ -5,12 +5,12 @@
 FROM mhart/alpine-node:9
 LABEL owner="bmotlagh@unitedeffects.com"
 
-RUN mkdir /src
-COPY . /src
-WORKDIR /src
+RUN mkdir /app
+COPY . /app
+WORKDIR /app
 
-RUN mv /src/config-changeme.js /src/config.js
-RUN yarn
+RUN mv /app/src/config-changeme.js /app/src/config.js
+RUN yarn --production
 
 EXPOSE 3010
 

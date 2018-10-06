@@ -12,7 +12,7 @@ import api from './routes/api_v2';
 
 const app = express();
 const debug = Debug('ue-content:app');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
@@ -23,8 +23,8 @@ app.use(bodyParser.urlencoded({
 
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/swagger', express.static(path.join(__dirname, 'public/swagger')));
+app.use(express.static(path.join(__dirname, '../public')));
+app.use('/swagger', express.static(path.join(__dirname, '../public/swagger')));
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');

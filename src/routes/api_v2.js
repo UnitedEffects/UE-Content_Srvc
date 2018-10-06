@@ -3,7 +3,7 @@ import log from '../services/log/api';
 import auth from '../services/auth/api';
 import contentApi from '../services/content/controller/api';
 
-const pJson = require('../package.json');
+const pJson = require('../../package.json');
 
 const router = express.Router();
 
