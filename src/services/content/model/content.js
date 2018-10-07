@@ -20,6 +20,8 @@ const contentSchema = new mongoose.Schema({
         required: false,
         unique: true
     },
+    product: String,
+    domain: String,
     /**
      * Path is depreciated
      */

@@ -21,6 +21,8 @@ const imageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    product: String,
+    domain: String,
     tags: {
         type: Array,
         required: false

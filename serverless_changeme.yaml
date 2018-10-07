@@ -5,6 +5,16 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: us-east-1
+  environment:
+    NODE_ENV: dev
+    SWAGGER: yourcustomdomain.com
+    MONGO: mongodb://yourmongodomain:27017/ue-content
+    REPLICA: rs0
+    UEAUTH: https://domainqa.unitedeffects.com
+    PRODUCT_SLUG: united_effects_auth
+    S3_KEY: YOUR_S3_KEY
+    S3_SECRET: YOUR_S3_SECRET
+    S3_BUCKET: YOUR_S3_BUCKET
 
 package:
   exclude:
@@ -15,7 +25,7 @@ plugins:
 
 custom:
  customDomain:
-   domainName: 'test.unitedeffects.com'
+   domainName: 'yourcustomdomain.com'
    basePath: ''
    stage: ${self:provider.stage}
    createRoute53Record: true

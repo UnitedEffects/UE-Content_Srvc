@@ -628,6 +628,14 @@ paths:
         type: string
         required: true
       - in: formData
+        name: product
+        type: string
+        description: product to correlate image to
+      - in: formData
+        name: domain
+        type: string
+        description: domain to correlate image to
+      - in: formData
         name: tag
         type: string
         required: false
@@ -975,6 +983,10 @@ definitions:
         type: string
       content:
         type: string
+      product:
+        type: string
+      domain:
+        type: string
       tag:
         type: string
       active:
@@ -990,6 +1002,10 @@ definitions:
       title:
         type: string
       content:
+        type: string
+      product:
+        type: string
+      domain:
         type: string
       tag:
         type: string
@@ -1031,6 +1047,10 @@ definitions:
       name:
         type: string
       description:
+        type: string
+      product:
+        type: string
+      domain:
         type: string
       url:
         type: string

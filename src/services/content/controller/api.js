@@ -8,7 +8,6 @@ import request from 'request';
 import log from '../../log/logs';
 import response from '../../responder';
 import send from '../../response';
-import auth from '../../auth/auth';
 
 const config = require('../../../config');
 
@@ -202,6 +201,8 @@ const contentApi = {
                 const options = {
                     name: `${req.user._id}_${fields.name[0]}_${dateNow}` || `${req.user._id}_${dateNow}`,
                     description: fields.description[0] || null,
+                    product: fields.product[0] || undefined,
+                    domain: fields.domain[0] || undefined,
                     url: data.Location,
                     owner: req.user._id,
                     tags: fields.tag,
