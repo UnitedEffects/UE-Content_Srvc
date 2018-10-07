@@ -1,5 +1,5 @@
 html {
-    background:#505D6E url(../images/background.jpg) no-repeat center center fixed;
+    background:#505D6E url(https://s3.amazonaws.com/ue-platform-content/background.jpg) no-repeat center center fixed;
     min-height:100%;
     -webkit-background-size: cover;
     -moz-background-size: cover;
