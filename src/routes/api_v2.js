@@ -1,8 +1,10 @@
 import express from 'express';
+import multer from 'multer';
 import log from '../services/log/api';
 import auth from '../services/auth/api';
 import contentApi from '../services/content/controller/api';
 
+const upload = multer({ dest: '/tmp/' });
 const pJson = require('../../package.json');
 
 const router = express.Router();
@@ -21,7 +23,7 @@ router.get('/', (req,res) => {
     });
 });
 
-//content
+// content
 router.post('/content', auth.isBearerAuthenticated, contentApi.create);
 router.get('/content', auth.isBearerAuthenticated, contentApi.returnAll);
 router.get('/content/:id', auth.isBearerAuthenticated, contentApi.returnOne);
@@ -35,7 +37,7 @@ router.get('/content/:id/categories', auth.isBearerAuthenticated, contentApi.get
 router.get('/content/category/:name', auth.isBearerAuthenticated, contentApi.getContentByCategory);
 router.get('/content/search', auth.isBearerAuthenticated, contentApi.searchContent);
 
-//categories
+// categories
 router.post('/category', [auth.isBearerAuthenticated, auth.isProductAdmin], contentApi.createCategory);
 router.get('/categories', auth.isBearerAuthenticated, contentApi.returnAllCategories);
 router.get('/category/:id', auth.isBearerAuthenticated, contentApi.returnOneCategory);
@@ -44,8 +46,8 @@ router.get('/category/name/:name', auth.isBearerAuthenticated, contentApi.return
 router.get('/categories/search', auth.isBearerAuthenticated, contentApi.searchCategory);
 
 
-//images
-router.post('/image', auth.isBearerAuthenticated, contentApi.addImage);
+// images
+router.post('/image', [auth.isBearerAuthenticated, upload.single('file')], contentApi.addImage);
 router.patch('/image/:id', auth.isBearerAuthenticated, contentApi.updateImage);
 router.delete('/image/:id', auth.isBearerAuthenticated, contentApi.removeImage);
 router.put('/image/:id/category', auth.isBearerAuthenticated, contentApi.addImageCategory);
@@ -56,7 +58,7 @@ router.get('/image/:id/categories', auth.isBearerAuthenticated, contentApi.getIm
 router.get('/images/category/:name', auth.isBearerAuthenticated, contentApi.getImagesByCategory);
 router.get('/images/search', auth.isBearerAuthenticated, contentApi.searchImages);
 
-//proxy
+// proxy
 router.get('/img/:slug', contentApi.imageProxy);
 
 /**

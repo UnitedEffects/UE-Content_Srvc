@@ -619,6 +619,7 @@ paths:
         name: file
         type: file
         required: true
+        format: binary
       - in: formData
         name: name
         type: string
