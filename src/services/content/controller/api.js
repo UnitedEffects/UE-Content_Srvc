@@ -1,6 +1,5 @@
 import content from './content';
 import images from './images';
-import multipart from 'multiparty';
 import AWS from 'aws-sdk';
 import fs from 'fs';
 import request from 'request';
@@ -53,7 +52,9 @@ const contentApi = {
         try {
             if (req.body.categories) delete req.body.categories;
             const cont = await content.returnOne(req.params.id);
-            if (req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            if (req.user.role !== 1 && cont.owner !== req.user._id) {
+                return response.send(res, send.fail401());
+            }
             return response.send(res, await content.patchOne(req.params.id, req.body));
         } catch (error) {
             log.detail('ERROR', 'Patch one content', error);
@@ -63,10 +64,15 @@ const contentApi = {
     async addCategory(req, res) {
         try {
             const cont = await content.returnOne(req.params.id);
-            if (req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            if (req.user.role !== 1 && cont.owner !== req.user._id) {
+                return response.send(res, send.fail401());
+            }
             const cat = await content.returnOneCategoryByName(req.body.name);
             if (!cat) return send.fail404('The category you are attempting to add, does not exist. Please add it to the system first.');
-            return response.send(res, await content.addCategory(req.params.id, { name: cat.data.name, description: cat.data.description }));
+            return response.send(res, await content.addCategory(req.params.id, {
+                name: cat.data.name,
+                description: cat.data.description
+            }));
         } catch (error) {
             log.detail('ERROR', 'Add Category to content', error);
             return response.send(res, error);
@@ -75,7 +81,9 @@ const contentApi = {
     async removeCategory(req, res) {
         try {
             const cont = await content.returnOne(req.params.id);
-            if (req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            if (req.user.role !== 1 && cont.owner !== req.user._id) {
+                return response.send(res, send.fail401());
+            }
             return response.send(res, await content.removeCategory(req.params.id, req.params.name));
         } catch (error) {
             log.detail('ERROR', 'Remove Category from content', error);
@@ -85,7 +93,9 @@ const contentApi = {
     async deleteOne(req, res) {
         try {
             const cont = await content.returnOne(req.params.id);
-            if (req.user.role !== 1 && cont.owner !== req.user._id) return response.send(res, send.fail401());
+            if (req.user.role !== 1 && cont.owner !== req.user._id) {
+                return response.send(res, send.fail401());
+            }
             return response.send(res, await content.deleteOne(req.params.id));
         } catch (error) {
             log.detail('ERROR', 'Delete Content', error);
@@ -321,24 +331,10 @@ const contentApi = {
     }
 };
 
-function getContentTypeByFile(fileName) {
-    let rc = 'application/octet-stream';
-    const fn = fileName.toLowerCase();
-
-    if (fn.indexOf('.html') >= 0) rc = 'text/html';
-    else if (fn.indexOf('.css') >= 0) rc = 'text/css';
-    else if (fn.indexOf('.json') >= 0) rc = 'application/json';
-    else if (fn.indexOf('.js') >= 0) rc = 'application/x-javascript';
-    else if (fn.indexOf('.png') >= 0) rc = 'image/png';
-    else if (fn.indexOf('.jpg') >= 0) rc = 'image/jpg';
-
-    return rc;
-}
-
 function uid(len) {
-    const buf = [],
-        chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-        charlen = chars.length;
+    const buf = [];
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charlen = chars.length;
 
     for (let i = 0; i < len; ++i) {
         buf.push(chars[getRandomInt(0, charlen - 1)]);
