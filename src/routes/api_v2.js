@@ -4,7 +4,8 @@ import log from '../services/log/api';
 import auth from '../services/auth/api';
 import contentApi from '../services/content/controller/api';
 
-const upload = multer({ dest: '/tmp/' });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const pJson = require('../../package.json');
 
 const router = express.Router();

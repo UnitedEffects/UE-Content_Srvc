@@ -175,14 +175,11 @@ const contentApi = {
     // images...
     addImage(req, res) {
         try {
-            console.info(req.headers);
             const s3Client = new AWS.S3({
                 accessKeyId: config.S3_KEY,
                 secretAccessKey: config.S3_SECRET
             });
             const dateNow = `${Date.now()}-${uid(10)}`;
-            console.info(req.file);
-            console.info(req.body);
             if (!req.file) response.send(res, { code: 400, data: { message: 'The file you attempted to upload was not defined', fields: req.body } });
             if (!req.body.description) return response.send(res, send.fail422('Missing Description'));
             if (!req.body.name) return response.send(res, send.fail422('Missing Name'));
@@ -190,11 +187,9 @@ const contentApi = {
                 Bucket: config.S3_BUCKET,
                 Key: `${req.user._id}_${req.body.name}_${dateNow}_${req.file.originalname}`,
                 ACL: 'public-read',
-                Body: fs.createReadStream(req.file.path),
+                Body: req.file.buffer,
                 ContentType: req.file.mimetype
             }, async (error, data) => {
-                console.info('****************S3 DATA');
-                console.info(data);
                 if (error) throw error;
                 const options = {
                     name: `${req.user._id}_${req.body.name}_${dateNow}` || `${req.user._id}_${dateNow}`,
@@ -206,80 +201,16 @@ const contentApi = {
                     tags: req.body.tag,
                     meta: data
                 };
-                if (!fs.existsSync(req.file.path)) log.error(`FILE DID NOT SAVE LOCALLY: ${req.file.path}`);
-                else console.info(`File Found. Deleting ${req.file.path} as cleanup now.`);
-                fs.unlinkSync(req.file.path);
+                if (fs.existsSync(req.file.path)) {
+                    console.info(`File Found. Deleting ${req.file.path} as cleanup now.`);
+                    fs.unlinkSync(req.file.path);
+                }
                 return response.send(res, await images.addImage(options));
             });
         } catch (error) {
             log.detail('ERROR', 'addImage', error);
             return response.send(res, error);
         }
-    },
-    addImage_old(req, res) {
-        console.info(req.headers);
-        const s3Client = new AWS.S3({
-            accessKeyId: config.S3_KEY,
-            secretAccessKey: config.S3_SECRET
-        });
-        const dateNow = `${Date.now()}-${uid(10)}`;
-        const form = new multipart.Form({ uploadDir: '/tmp' });
-
-        form.parse(req, (error, fields, files) => {
-            console.info('****************FORM ERRORS');
-            console.info(error);
-            console.info('****************FORM FIELDS');
-            console.info(fields);
-            console.info('****************FORM FILES');
-            console.info(files);
-
-            if (error) {
-                log.error(error);
-            }
-            let myFile = {};
-            if (files) {
-                myFile = files.file[0];
-            } else return response.send(res, { code: 400, data: { message: 'The file you attempted to upload was not defined', fields, files } });
-            const metaData = getContentTypeByFile(myFile.originalFilename);
-            console.info(`Path: ${myFile.path}`);
-            console.info('*************************Stats:');
-            console.info(fs.statSync(myFile.path));
-            s3Client.upload({
-                Bucket: config.S3_BUCKET,
-                Key: `${req.user._id}_${fields.name[0]}_${dateNow}_${myFile.originalFilename}`,
-                ACL: 'public-read',
-                Body: fs.createReadStream(myFile.path),
-                ContentType: metaData
-            }, (err, data) => {
-                console.info('****************S3 ERRORS');
-                console.info(err);
-                console.info('****************S3 DATA');
-                console.info(data);
-                if (err) return response.send(res, send.fail400(err));
-                if (!fields.description) return response.send(res, send.fail422('Missing Description'));
-                if (!fields.name) return response.send(res, send.fail422('Missing Description'));
-                if (!fs.existsSync(myFile.path)) log.error(`FILE DID NOT SAVE LOCALLY: ${myFile.path}`);
-                else console.info(`File Found. Deleting ${myFile.path} as cleanup now.`);
-                fs.unlinkSync(myFile.path);
-                const options = {
-                    name: `${req.user._id}_${fields.name[0]}_${dateNow}` || `${req.user._id}_${dateNow}`,
-                    description: fields.description[0] || null,
-                    product: fields.product[0] || undefined,
-                    domain: fields.domain[0] || undefined,
-                    url: data.Location,
-                    owner: req.user._id,
-                    tags: fields.tag,
-                    meta: data
-                };
-
-                images.addImage(options)
-                    .then(output => response.send(res, output))
-                    .catch((error) => {
-                        log.detail('ERROR', 'addImage', error);
-                        return response.send(res, error);
-                    });
-            });
-        });
     },
     imageProxy(req, res) {
         images.getImageInfoBySlug(req.params.slug)
