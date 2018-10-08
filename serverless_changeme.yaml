@@ -1,4 +1,4 @@
-service: ue-content-v2
+service: ${file(./slsenv/slsenv.${self:provider.product}.json):NAME}
 
 provider:
   name: aws
@@ -7,15 +7,15 @@ provider:
   product: ${opt:product, 'test'}
   region: us-east-1
   environment:
-    NODE_ENV: ${file(./slsenv/slsenv.${self:provider.stage}.json):NODE_ENV}
-    SWAGGER: ${file(./slsenv/slsenv.${self:provider.stage}.json):SWAGGER}
-    MONGO: ${file(./slsenv/slsenv.${self:provider.stage}.json):MONGO}
-    REPLICA: ${file(./slsenv/slsenv.${self:provider.stage}.json):REPLICA}
-    UEAUTH: ${file(./slsenv/slsenv.${self:provider.stage}.json):UEAUTH}
-    PRODUCT_SLUG: ${file(./slsenv/slsenv.${self:provider.stage}.json):PRODUCT_SLUG}
-    S3_KEY: ${file(./slsenv/slsenv.${self:provider.stage}.json):S3_KEY}
-    S3_SECRET: ${file(./slsenv/slsenv.${self:provider.stage}.json):S3_SECRET}
-    S3_BUCKET: ${file(./slsenv/slsenv.${self:provider.stage}.json):S3_BUCKET}
+    NODE_ENV: ${file(./slsenv/slsenv.${self:provider.product}.json):NODE_ENV}
+    SWAGGER: ${file(./slsenv/slsenv.${self:provider.product}.json):SWAGGER}
+    MONGO: ${file(./slsenv/slsenv.${self:provider.product}.json):MONGO}
+    REPLICA: ${file(./slsenv/slsenv.${self:provider.product}.json):REPLICA}
+    UEAUTH: ${file(./slsenv/slsenv.${self:provider.product}.json):UEAUTH}
+    PRODUCT_SLUG: ${file(./slsenv/slsenv.${self:provider.product}.json):PRODUCT_SLUG}
+    S3_KEY: ${file(./slsenv/slsenv.${self:provider.product}.json):S3_KEY}
+    S3_SECRET: ${file(./slsenv/slsenv.${self:provider.product}.json):S3_SECRET}
+    S3_BUCKET: ${file(./slsenv/slsenv.${self:provider.product}.json):S3_BUCKET}
 
 package:
   exclude:
@@ -26,7 +26,7 @@ plugins:
 
 custom:
  customDomain:
-   domainName: ${file(./slsenv/slsenv.${self:provider.stage}.json):SWAGGER}
+   domainName: ${file(./slsenv/slsenv.${self:provider.product}.json):SWAGGER}
    basePath: ''
    stage: ${self:provider.stage}
    createRoute53Record: true

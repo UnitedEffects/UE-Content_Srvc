@@ -1,4 +1,5 @@
 {
+    "NAME": "ue-content-srvc",
     "NODE_ENV": "qa",
     "SWAGGER": "yourdomain.com",
     "MONGO": "mongodb://yourmongodomain:27017/ue-content",

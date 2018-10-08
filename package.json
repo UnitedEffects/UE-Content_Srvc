@@ -9,6 +9,7 @@
     "build": "yarn && babel src -d dist",
     "package": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls package",
     "deploy": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls deploy",
+    "preflight": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production",
     "test": "mocha --recursive './src/test/*Test.js' --compilers js:babel-core/register",
     "lintFix": "eslint . --fix"
   },
