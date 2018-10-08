@@ -4,17 +4,18 @@ provider:
   name: aws
   runtime: nodejs8.10
   stage: dev
+  product: ${opt:product, 'test'}
   region: us-east-1
   environment:
-    NODE_ENV: dev
-    SWAGGER: yourcustomdomain.com
-    MONGO: mongodb://yourmongodomain:27017/ue-content
-    REPLICA: rs0
-    UEAUTH: https://domainqa.unitedeffects.com
-    PRODUCT_SLUG: united_effects_auth
-    S3_KEY: YOUR_S3_KEY
-    S3_SECRET: YOUR_S3_SECRET
-    S3_BUCKET: YOUR_S3_BUCKET
+    NODE_ENV: ${file(./slsenv/slsenv.${self:provider.stage}.json):NODE_ENV}
+    SWAGGER: ${file(./slsenv/slsenv.${self:provider.stage}.json):SWAGGER}
+    MONGO: ${file(./slsenv/slsenv.${self:provider.stage}.json):MONGO}
+    REPLICA: ${file(./slsenv/slsenv.${self:provider.stage}.json):REPLICA}
+    UEAUTH: ${file(./slsenv/slsenv.${self:provider.stage}.json):UEAUTH}
+    PRODUCT_SLUG: ${file(./slsenv/slsenv.${self:provider.stage}.json):PRODUCT_SLUG}
+    S3_KEY: ${file(./slsenv/slsenv.${self:provider.stage}.json):S3_KEY}
+    S3_SECRET: ${file(./slsenv/slsenv.${self:provider.stage}.json):S3_SECRET}
+    S3_BUCKET: ${file(./slsenv/slsenv.${self:provider.stage}.json):S3_BUCKET}
 
 package:
   exclude:
@@ -25,7 +26,7 @@ plugins:
 
 custom:
  customDomain:
-   domainName: 'yourcustomdomain.com'
+   domainName: ${file(./slsenv/slsenv.${self:provider.stage}.json):SWAGGER}
    basePath: ''
    stage: ${self:provider.stage}
    createRoute53Record: true

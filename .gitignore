@@ -62,3 +62,4 @@ config.js
 .serverless/
 dist/
 serverless.yaml
+slsenv/

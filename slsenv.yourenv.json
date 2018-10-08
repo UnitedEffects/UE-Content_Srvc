@@ -1,0 +1,11 @@
+{
+    "NODE_ENV": "qa",
+    "SWAGGER": "yourdomain.com",
+    "MONGO": "mongodb://yourmongodomain:27017/ue-content",
+    "REPLICA": "rs0",
+    "UEAUTH": "https://domainqa.unitedeffects.com",
+    "PRODUCT_SLUG": "united_effects_auth",
+    "S3_KEY": "YOURS3KEY",
+    "S3_SECRET": "YOURS3SECRET",
+    "S3_BUCKET": "YOURBUCKET"
+}
