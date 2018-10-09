@@ -61,6 +61,10 @@ This serverless framework setup is only compatible with AWS Lambda because of th
 }
 ```
 
+## Docker
+
+You can package this into a container. The docker file is provided.
+
 ## Live
 
 https://contentqa.unitedeffects.com
