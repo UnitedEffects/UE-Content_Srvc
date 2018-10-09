@@ -75,7 +75,7 @@ https://contentqa.unitedeffects.com/api
 
 ### UEAUTH IDM
 
-This code base uses a proprietary OAuth2 based IDM system called (UEAuth)[ueauth.io]. It is represented as middleware on the routes and you can swap it out if you like. see src/routes
+This code base uses a proprietary OAuth2 based IDM system called [UEAuth](ueauth.io). It is represented as middleware on the routes and you can swap it out if you like. see src/routes
 
 ### Gateway
 
