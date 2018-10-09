@@ -1,0 +1,45 @@
+service: ${file(./.env/env.${self:provider.env}.json):NAME}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${file(./.env/env.${self:provider.env}.json):NODE_ENV}
+  env: ${env:SLS_ENV, 'test'}
+  region: us-east-1
+  environment:
+    NODE_ENV: ${file(./.env/env.${self:provider.env}.json):NODE_ENV}
+    SWAGGER: ${file(./.env/env.${self:provider.env}.json):SWAGGER}
+    MONGO: ${file(./.env/env.${self:provider.env}.json):MONGO}
+    REPLICA: ${file(./.env/env.${self:provider.env}.json):REPLICA}
+    UEAUTH: ${file(./.env/env.${self:provider.env}.json):UEAUTH}
+    PRODUCT_SLUG: ${file(./.env/env.${self:provider.env}.json):PRODUCT_SLUG}
+    S3_KEY: ${file(./.env/env.${self:provider.env}.json):S3_KEY}
+    S3_SECRET: ${file(./.env/env.${self:provider.env}.json):S3_SECRET}
+    S3_BUCKET: ${file(./.env/env.${self:provider.env}.json):S3_BUCKET}
+
+package:
+  exclude:
+    - src/**
+
+plugins:
+ - serverless-domain-manager
+ - serverless-apigw-binary
+
+custom:
+  customDomain:
+    domainName: ${file(./.env/env.${self:provider.env}.json):SWAGGER}
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+  apigwBinary:
+    types:
+      - 'multipart/form-data'
+      - 'image/jpeg'
+      - 'image/png'
+
+functions:
+  app:
+    handler: dist/bin/slsapp.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'

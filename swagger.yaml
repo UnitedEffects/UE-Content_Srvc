@@ -1,0 +1,1066 @@
+swagger: '2.0'
+info:
+  description: This swagger spec details the content, category and image functionality of the United Effects Platform. Copyright 2018 theBoEffect LLC. All rights reserved. https://unitedeffects.com
+  version: 1.0.0
+  title: UE Content Service
+  contact:
+    email: team@unitedeffects.com
+host: localhost:3010
+basePath: /api
+tags:
+  - name: logs
+    description: Logging endpoints
+  - name: Content
+    description: CRUD for content
+  - name: Images
+    description: CRUD for images
+  - name: Categories
+    description: Data type agnostic category system
+schemes:
+  - http
+  - https
+paths:
+  /logs:
+    post:
+      tags:
+        - logs
+      summary: Write a new log to the console and the db
+      description: 'This is unlikely to be used with frequency.'
+      operationId: writeLog
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Log data to be written
+          required: true
+          schema:
+            $ref: '#/definitions/Log'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ApiResponseLog'
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+    get:
+      tags:
+        - logs
+      summary: Retrieve all logs in the system
+      description: ''
+      operationId: getLogs
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Logs'
+        '401':
+          description: Unauthorized
+      security:
+        - UEAuth: []
+  '/logs/{code}':
+    get:
+      tags:
+        - logs
+      summary: Find all logs with one type of code.
+      description: Codes should be "error", "notify", or "success"
+      operationId: getLogByCode
+      produces:
+        - application/json
+      parameters:
+        - name: code
+          in: path
+          description: code of log types to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Logs'
+        '400':
+          description: Invalid code supplied
+        '401':
+          description: Unauthorized
+      security:
+        - UEAuth: []
+  '/logs/{code}/{timestamp}':
+    get:
+      tags:
+        - logs
+      summary: Find a log with code and timestamp specified
+      description: Codes should be "error", "notify", or "success".
+      operationId: getLog
+      produces:
+        - application/json
+      parameters:
+        - name: code
+          in: path
+          description: code of log type to return
+          required: true
+          type: string
+        - name: timestamp
+          in: path
+          description: timestamp of log type to return
+          required: true
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ApiResponseLog'
+        '400':
+          description: Invalid code supplied
+        '401':
+          description: Unauthorized
+        '404':
+          description: Log not found
+      security:
+        - UEAuth: []
+  /content:
+    post:
+      tags:
+        - Content
+      summary: Add a new content entry
+      description: Add a new content entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: new content
+        in: body
+        required: true
+        description: new content to be added
+        schema:
+          $ref: '#/definitions/contentObject'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+    get:
+      tags:
+        - Content
+      summary: Get All content entrys
+      description: Get All content entrys
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: tag
+        in: query
+        type: string
+        required: false
+        description: optional filter on tag value
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /content/public/{slug}:
+    get:
+      tags:
+        - Content
+      summary: Public access - Get a content entry by slug
+      description: Public access - Get a content entry by slug
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: slug
+        type: string
+        in: path
+        required: true
+        description: slug of content to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /content/{id}:
+    get:
+      tags:
+        - Content
+      summary: Get a content entry
+      description: Get a content entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id or Slug of content to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+    patch:
+      tags:
+        - Content
+      summary: Edit a content entry
+      description: Edit a content entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: Edit content
+        in: body
+        required: true
+        description: updates to content. Any of the following.
+        schema:
+          $ref: '#/definitions/contentPatchObject'
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of content to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+    delete:
+      tags:
+        - Content
+      summary: Delete a content entry (hard delete)
+      description: Delete a content (hard delete)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of content to delete
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /content/{id}/category:
+    put:
+      tags:
+        - Content
+      summary: add a category to a content entry
+      description: add a category to a content entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of content to retrieve
+      - name: Edit content
+        in: body
+        required: true
+        description: updates to content. Any of the following.
+        schema:
+          $ref: '#/definitions/categoryAddObject'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /content/{id}/category/{name}:
+    patch:
+      tags:
+        - Content
+      summary: remove a category to a content entry
+      description: remove a category to a content entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of content entry to retrieve
+      - name: name
+        type: string
+        in: path
+        required: true
+        description: Name of the category to remove from issue
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /content/{id}/categories:
+    get:
+      tags:
+        - Content
+      summary: Get a content entry categories
+      description: Get a content entry categories
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of content entry categories to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /content/category/{name}:
+    get:
+      tags:
+        - Content
+      summary: Get content entrys by category
+      description: Get content entrys by category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: name
+        type: string
+        in: path
+        required: true
+        description: name of category to filter
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /content/search:
+    get:
+      tags:
+        - Content
+      summary: Search for content
+      description: Search for content
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: q
+        type: string
+        in: query
+        required: true
+        description: String to define what you are looking for
+      - name: active
+        type: boolean
+        in: query
+        required: false
+        default: true
+        description: Whether or not you want active or inactive records returned
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /categories/search:
+    get:
+      tags:
+        - Categories
+      summary: Search for categories
+      description: Search for categories
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: q
+        type: string
+        in: query
+        required: true
+        description: String to define what you are looking for
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /category:
+    post:
+      tags:
+        - Categories
+      summary: Add a new category
+      description: Add a new category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: new content
+        in: body
+        required: true
+        description: new category to be added
+        schema:
+          $ref: '#/definitions/categoryObject'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/categoryResponse'
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Get All categories
+      description: Get All categories
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /category/{id}:
+    get:
+      tags:
+        - Categories
+      summary: Get a category
+      description: Get a category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of category to retrieve
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/categoryResponse'
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+    delete:
+      tags:
+        - Categories
+      summary: Delete a category (hard delete)
+      description: Delete a category (hard delete)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of category to delete
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /category/name/{name}:
+    get:
+      tags:
+        - Categories
+      summary: Get a category by name
+      description: Get a category by name
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: name
+        type: string
+        in: path
+        required: true
+        description: name of category to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /image:
+    post:
+      tags:
+        - Images
+      summary: Add a new imgage
+      description: Add a new image
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+      - in: formData
+        name: file
+        type: file
+        required: true
+        format: binary
+      - in: formData
+        name: name
+        type: string
+        required: true
+      - in: formData
+        name: description
+        type: string
+        required: true
+      - in: formData
+        name: product
+        type: string
+        description: product to correlate image to
+      - in: formData
+        name: domain
+        type: string
+        description: domain to correlate image to
+      - in: formData
+        name: tag
+        type: string
+        required: false
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /image/{id}:
+    get:
+      tags:
+        - Images
+      summary: Get an image data
+      description: Get an image data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: id of image to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+    patch:
+      tags:
+        - Images
+      summary: Update an imgage data
+      description: Update an image data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: id of image to retrieve
+      - name: new image
+        in: body
+        required: true
+        description: new image data to be added
+        schema:
+          $ref: '#/definitions/imageObject'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+    delete:
+      tags:
+        - Images
+      summary: Delete an image entry - Warning, this will break dependecies
+      description: Delerte an image entry - Warning, this will break dependecies
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: id of image to delete
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /images:
+    get:
+      tags:
+        - Images
+      summary: PUBLIC - Get all images
+      description: PUBLIC - Get all images
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /img/{slug}:
+    get:
+      tags:
+        - Images
+      summary: Proxy to an image directly
+      description: Proxy to an image directly
+      produces:
+        - text/html
+      parameters:
+      - name: slug
+        type: string
+        in: path
+        required: true
+        description: id of image to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /images/search:
+    get:
+      tags:
+        - Images
+      summary: Search for Images
+      description: Search for Images
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: q
+        type: string
+        in: query
+        required: true
+        description: String to define what you are looking for
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /image/{id}/category:
+    put:
+      tags:
+        - Images
+      summary: Add a category to an image entry
+      description: Add a category to an image entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of image to retrieve
+      - name: Category
+        in: body
+        required: true
+        description: Category to add to the image
+        schema:
+          $ref: '#/definitions/categoryAddObject'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /image/{id}/category/{name}:
+    patch:
+      tags:
+        - Images
+      summary: Remove a category from an Image entry
+      description: Remove a category from an Image entry
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of image entry to retrieve
+      - name: name
+        type: string
+        in: path
+        required: true
+        description: Name of the category to remove from issue
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /image/{id}/categories:
+    get:
+      tags:
+        - Images
+      summary: Get an image entry categories
+      description: Get an image entry categories
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: Id of image entry categories to retrieve
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+  /images/category/{name}:
+    get:
+      tags:
+        - Images
+      summary: Get image entrys by category
+      description: Get image entrys by category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - name: name
+        type: string
+        in: path
+        required: true
+        description: name of category to filter
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Unauthorized
+        '405':
+          description: Invalid input
+        '500':
+          description: Unknown error
+      security:
+        - UEAuth: []
+securityDefinitions:
+  UEAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: For both UEAuth and other Bearer based tokens, type in "Bearer " followed by your Token.
+definitions:
+  Log:
+    type: object
+    required:
+      - logCode
+      - logTimestamp
+    properties:
+      logCode:
+        type: string
+        description: This is your hashKey. This should only be ERROR, NOTIFY, or SUCCESS
+      logTimestamp:
+        type: string
+        format: date-time
+        description: This is your rangeKey. This is a timestamp.
+      message:
+        type: string
+        description: This should be any brief summary data in string format.
+      details:
+        type: object
+        description: You can directly pipe any error message objects to here.
+  ApiResponseLog:
+    properties:
+      type:
+        type: string
+        enum: ['Log']
+      data:
+        $ref: '#/definitions/Log'
+  Logs:
+    properties:
+      type:
+        type: string
+        enum: ['Log']
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Log'
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      data:
+        type: string
+  contentPatchObject:
+    properties:
+      title:
+        type: string
+      content:
+        type: string
+      product:
+        type: string
+      domain:
+        type: string
+      tag:
+        type: string
+      active:
+        type: boolean
+        default: true
+      internal_description:
+        type: string
+      auth_required:
+        type: boolean
+        default: false
+  contentObject:
+    properties:
+      title:
+        type: string
+      content:
+        type: string
+      product:
+        type: string
+      domain:
+        type: string
+      tag:
+        type: string
+      active:
+        type: boolean
+      auth_required:
+        type: boolean
+        default: false
+      internal_description:
+        type: string
+  categoryObject:
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+        default: 'Content'
+      description:
+        type: string
+  categoryResponse:
+    properties:
+      name:
+        type: string
+      pretty_name:
+        type: string
+      type:
+        type: string
+        default: 'Content'
+      description:
+        type: string
+  categoryAddObject:
+    properties:
+      name:
+        type: string
+      id:
+        type: string
+  imageObject:
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      product:
+        type: string
+      domain:
+        type: string
+      url:
+        type: string
+      slug:
+        type: string
+      tags:
+        type: array
+        items:
+          type: string
+externalDocs:
+  description: Secured by ueauth.io
+  url: 'https://ueauth.io'
