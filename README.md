@@ -1,5 +1,5 @@
 # UE-Content_Srvc
-This service allows you to create and store content (text, html or images) to be utilized on web pages. Images are sent to an S3 bucket of your choosing.
+This service allows you to create and store content (text, html or images) to be utilized on web pages. Images are sent to an S3 bucket of your choosing. The service is designed to run as a wrapped lambda function in aws with a gateway proxying requests.
 
 ## Dependencies
 
