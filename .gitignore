@@ -58,8 +58,7 @@ typings/
 .env
 .idea/
 node_modules/
-config.js
+/src/config.js
 .serverless/
 dist/
-serverless.yaml
-slsenv/
+.env/

@@ -9,7 +9,6 @@
     "build": "yarn && babel src -d dist",
     "package": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls package",
     "deploy": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls deploy",
-    "preflight": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production",
     "test": "mocha --recursive './src/test/*Test.js' --compilers js:babel-core/register",
     "lintFix": "eslint . --fix"
   },
@@ -63,6 +62,7 @@
     "pug": "^2.0.0-rc.3",
     "request": "^2.83.0",
     "serverless-domain-manager": "^2.6.5",
+    "serverless-apigw-binary": "^0.4.4",
     "serverless-http": "^1.6.0",
     "yamljs": "^0.3.0"
   },
