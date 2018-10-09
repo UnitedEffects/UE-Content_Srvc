@@ -9,7 +9,7 @@ RUN mkdir /app
 COPY . /app
 WORKDIR /app
 
-RUN mv /app/src/config-changeme.js /app/src/config.js
+RUN mv /app/src/config_changeme.js /app/src/config.js
 RUN yarn --production
 
 EXPOSE 3010
