@@ -1,6 +1,6 @@
 {
   "name": "ue-content",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A microservice to store and serve content to a UI.",
   "scripts": {
     "start": "node ./src/bin/start.js",
@@ -53,7 +53,7 @@
     "install": "^0.10.1",
     "joi": "^13.0.2",
     "moment": "^2.19.1",
-    "mongoose": "^4.13.8",
+    "mongoose": "^5.3.4",
     "mongoose-search-plugin": "^0.1.2",
     "morgan": "^1.8.2",
     "multer": "^1.4.0",
@@ -61,8 +61,8 @@
     "passport-http-bearer": "^1.0.1",
     "pug": "^2.0.0-rc.3",
     "request": "^2.83.0",
-    "serverless-domain-manager": "^2.6.5",
     "serverless-apigw-binary": "^0.4.4",
+    "serverless-domain-manager": "^2.6.5",
     "serverless-http": "^1.6.0",
     "yamljs": "^0.3.0"
   },

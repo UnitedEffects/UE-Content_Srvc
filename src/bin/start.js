@@ -25,15 +25,16 @@ console.info(`Connection string: ${mongoConnect}`);
 
 const mongoOptions = {
     keepAlive: 300000,
-    connectTimeoutMS: 30000,
-    useMongoClient: true
+    connectTimeoutMS: 10000,
+    useNewUrlParser: true,
+    promiseLibrary: Promise
 };
 
-if (process.env.NODE_ENV === 'production') mongoOptions.replicaSet = config.REPLICA;
+if (config.ENV === 'production') mongoOptions.replicaSet = config.REPLICA;
 
 function connectionM() {
-    mongoose.connect(`${mongoConnect}?authSource=admin`, mongoOptions, (err) => {
-        if (err) {
+    mongoose.connect(`${mongoConnect}?authSource=admin`, mongoOptions)
+        .catch((err) => {
             console.info('********************************************ERROR*******************************************');
             console.info('Unable to connect to the database - this service will not persist data');
             console.info(`DB attempted:  ${mongoConnect}`);
@@ -44,10 +45,8 @@ function connectionM() {
             setTimeout(() => {
                 connectionM();
             }, 2000);
-        }
-    });
+        });
 }
-
 connectionM();
 
 /**

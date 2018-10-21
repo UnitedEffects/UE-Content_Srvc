@@ -3,7 +3,7 @@
  */
 
 const config = {
-    ENV: process.env.NODE_ENV || 'dev',
+    ENV: process.env.NODE_ENV || 'production',
     SWAGGER: process.env.SWAGGER || 'localhost:3010',
     MONGO: process.env.MONGO || 'mongodb://localhost:27017/ue-content',
     REPLICA: process.env.REPLICA || 'rs0',
