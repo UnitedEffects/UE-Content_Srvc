@@ -2,15 +2,11 @@
  * Module dependencies.
  */
 
-// enables ES6 ('import'.. etc) in Node
-// require('babel-core/register');
 require('babel-polyfill');
 
 const sls = require('serverless-http');
 const mongoose = require('mongoose');
 const app = require('../app').default;
-// const debug = require('debug')('ue-content:app');
-// const http = require('http');
 const config = require('../config');
 
 const mongoConnect = config.MONGO;
