@@ -1,12 +1,8 @@
-/**
- * Created by bmotlagh on 10/23/17.
- */
-
 import mongoose from 'mongoose';
 mongoose.Promise = Promise;
 import moment from 'moment';
 
-// Define our user schema
+mongoose.set('useCreateIndex', true);
 const logSchema = new mongoose.Schema({
     logTimestamp: {
         type: Date,

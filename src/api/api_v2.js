@@ -1,11 +1,11 @@
 import express from 'express';
 import multer from 'multer';
-import log from '../services/log/api';
-import auth from '../services/auth/api';
-import contentApi from '../services/content/controller/api';
+import log from './log/api';
+import auth from './auth/api';
+import contentApi from './content/api';
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 const pJson = require('../../package.json');
 
 const router = express.Router();
@@ -13,7 +13,7 @@ const router = express.Router();
 /**
  * You'll want to change these values
  */
-router.get('/', (req,res) => {
+router.get('/', (req, res) => {
     res.json({
         service: 'United Effects - Content Service',
         site: 'https://unitedeffects.com',
@@ -26,6 +26,7 @@ router.get('/', (req,res) => {
 
 // content
 router.post('/content', auth.isBearerAuthenticated, contentApi.create);
+/*
 router.get('/content', auth.isBearerAuthenticated, contentApi.returnAll);
 router.get('/content/:id', auth.isBearerAuthenticated, contentApi.returnOne);
 router.get('/content/:slug', auth.isBearerAuthenticated, contentApi.returnOneBySlug);
@@ -61,7 +62,7 @@ router.get('/images/search', auth.isBearerAuthenticated, contentApi.searchImages
 
 // proxy
 router.get('/img/:slug', contentApi.imageProxy);
-
+*/
 /**
  * Log API Calls
  */

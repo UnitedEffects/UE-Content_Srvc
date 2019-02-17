@@ -1,15 +1,15 @@
 {
   "name": "ue-content",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "A microservice to store and serve content to a UI.",
   "scripts": {
-    "start": "node ./src/bin/start.js",
-    "dev": "nodemon ./src/bin/start.js",
-    "dist": "nodemon ./dist/bin/start.js",
+    "start": "node ./src/start.js",
+    "dev": "nodemon ./src/start.js",
+    "dist": "nodemon ./dist/start.js",
     "build": "yarn && babel src -d dist",
     "package": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls package",
     "deploy": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls deploy",
-    "test": "mocha --recursive './src/test/*Test.js' --compilers js:babel-core/register",
+    "test": "mocha --recursive './test/*Test.js' --compilers js:babel-core/register",
     "lintFix": "eslint . --fix"
   },
   "contributors": [
@@ -40,7 +40,9 @@
   },
   "homepage": "https://unitedeffects.com",
   "dependencies": {
+    "accesscontrol": "^2.2.1",
     "aws-sdk": "^2.177.0",
+    "axios": "^0.18.0",
     "babel-core": "^6.25.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",

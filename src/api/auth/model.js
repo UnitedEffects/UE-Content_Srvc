@@ -2,8 +2,9 @@
  * Created by borzou on 9/27/16.
  */
 import mongoose from 'mongoose';
-mongoose.Promise = Promise;
 import bcrypt from 'bcrypt-nodejs';
+
+mongoose.Promise = Promise;
 
 // Define our user schema
 const tokenSchema = new mongoose.Schema({
@@ -16,7 +17,7 @@ const tokenSchema = new mongoose.Schema({
         required: true,
         index: true
     },
-    product_slug:{
+    product_slug: {
         type: String,
         required: true
     },
@@ -36,7 +37,7 @@ const tokenSchema = new mongoose.Schema({
 });
 
 // Execute before each user.save() call
-tokenSchema.pre('save', function(callback) {
+tokenSchema.pre('save', function (callback) {
     const token = this;
 
     // Break out if the password hasn't changed
@@ -54,7 +55,7 @@ tokenSchema.pre('save', function(callback) {
     });
 });
 
-tokenSchema.methods.verifyToken = function(token, callback) {
+tokenSchema.methods.verifyToken = function (token, callback) {
     bcrypt.compare(token, this.value, (err, isMatch) => {
         if (err) return callback(err);
         callback(null, isMatch);

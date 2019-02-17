@@ -4,12 +4,13 @@ import Debug from 'debug';
 import express from 'express';
 import logger from 'morgan';
 import path from 'path';
-import respond from './services/responder';
-import response from './services/response';
+import tools from './apiTools/';
 
-import index from './routes/index';
-import api from './routes/api_v2';
+import index from './index';
+import api from './api/api_v2';
 
+const respond = tools.respond;
+const send = tools.send;
 const app = express();
 const debug = Debug('ue-content:app');
 app.set('views', path.join(__dirname, '../views'));
@@ -49,7 +50,7 @@ app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
-    respond.send(res, response.set(err.status || 500, err.message || 'unknown error'));
+    respond.send(res, send.set(err.status || 500, err.message || 'unknown error'));
 });
 
 // Handle uncaughtException

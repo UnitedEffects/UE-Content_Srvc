@@ -1,9 +1,6 @@
-/**
- * Created by bmotlagh on 10/23/17.
- */
 import moment from 'moment';
-import responder from '../response';
 import Log from './model';
+import send from '../../apiTools/send';
 
 export default {
     /**
@@ -19,10 +16,10 @@ export default {
             const log = new Log(logData);
             console.info(logData);
             log.save()
-                .then(result => resolve(responder.set200(result, 'Log')))
+                .then(result => resolve(send.set200(result, 'Log')))
                 .catch((error) => {
                     console.error(error);
-                    return reject(responder.fail500(error))
+                    return reject(send.fail500(error))
                 });
         });
     },
@@ -33,10 +30,10 @@ export default {
     getLogs() {
         return new Promise((resolve, reject) => {
             Log.find({})
-                .then(result => resolve(responder.set200(result, 'Log')))
+                .then(result => resolve(send.set200(result, 'Log')))
                 .catch((err) => {
                     console.error(err);
-                    return reject(responder.fail500(err));
+                    return reject(send.fail500(err));
                 });
         });
     },
@@ -48,10 +45,10 @@ export default {
     getLogByCode(code) {
         return new Promise((resolve, reject) => {
             Log.find({ logCode: code })
-                .then(result => resolve(responder.set200(result, 'Log')))
+                .then(result => resolve(send.set200(result, 'Log')))
                 .catch((err) => {
                     console.error(err);
-                    return reject(responder.fail500(err));
+                    return reject(send.fail500(err));
                 });
         });
     },
@@ -64,10 +61,10 @@ export default {
     getLog(code, timestamp) {
         return new Promise((resolve, reject) => {
             Log.findOne({ logCode: code, logTimestamp: timestamp })
-                .then(result => resolve(responder.set200(result, 'Log')))
+                .then(result => resolve(send.set200(result, 'Log')))
                 .catch((err) => {
                     console.error(err);
-                    return reject(responder.fail500(err));
+                    return reject(send.fail500(err));
                 });
         });
     },
@@ -79,9 +76,9 @@ export default {
         const data = {
             logCode: 'ERROR',
             logTimestamp: moment().format(),
-            message
+            message: `Caught Error at ${moment().format('LLLL')}. See details.`,
+            details: message
         };
-        console.error(data);
         const log = new Log(data);
         log.save()
             .then(result => console.info(result))
@@ -98,7 +95,6 @@ export default {
             logTimestamp: moment().format(),
             message
         };
-        console.info(data);
         const log = new Log(data);
         log.save()
             .then(result => console.info(result))
@@ -114,7 +110,6 @@ export default {
             logTimestamp: moment().format(),
             message
         };
-        console.info(data);
         const log = new Log(data);
         log.save()
             .then(result => console.info(result))
@@ -134,7 +129,6 @@ export default {
             message,
             details: detail
         };
-        console.info(data);
         const log = new Log(data);
         log.save()
             .then(result => console.info(result))
