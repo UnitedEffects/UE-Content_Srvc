@@ -1,38 +1,40 @@
 import mongoose from 'mongoose';
-mongoose.Promise = Promise;
 import moment from 'moment';
-import searchPlugin from 'mongoose-search-plugin';
+import uuid from 'uuidv4';
 
-// Define our user schema
+mongoose.Promise = Promise;
+
 const contentSchema = new mongoose.Schema({
     created: {
         type: Date,
         default: moment().format()
     },
-    owner: mongoose.Schema.Types.ObjectId,
+    guid: {
+        type: String,
+        default: uuid,
+        unique: true
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
     title: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     slug: {
         type: String,
-        required: false,
         unique: true
     },
-    product: String,
-    domain: String,
-    /**
-     * Path is depreciated
-     */
-    path: {
+    product: {
         type: String,
-        required: false,
+        required: true
     },
-    tag: {
+    domain: {
         type: String,
-        required: false
+        required: true
     },
+    labels: [String],
     content: {
         type: String,
         required: true
@@ -41,36 +43,20 @@ const contentSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    active:{
-        type: Boolean,
-        default: true
-    },
-    auth_required: {
+    authRequired: {
         type: Boolean,
         default: false
     },
-    categories:[
-        {
-            name: {
-                type: String,
-                required: true
-            },
-            id: {
-                type: String,
-                required: true
-            }
-        }
-    ],
-    internal_description: {
-        type: String,
-        required: false
-    }
+    internalDescription: String
 });
 
 contentSchema.pre('save', callback => callback());
 
-contentSchema.plugin(searchPlugin, {
-    fields: ['title', 'internal_description', 'content']
+contentSchema.index({
+    title: 'text',
+    internal_description: 'text',
+    labels: 'text',
+    content: 'text'
 });
 
 export default mongoose.model('Content', contentSchema);

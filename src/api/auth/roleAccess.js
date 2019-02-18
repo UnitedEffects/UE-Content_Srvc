@@ -3,44 +3,29 @@ import Access from 'accesscontrol';
 const ac = new Access();
 
 ac.grant(['guest'])
-    .createAny('payment')
-    .createAny('card')
-    .readAny('card')
-    .updateOwn('card')
-    .deleteOwn('card')
-    .createOwn('catalog')
-    .readAny('catalog')
-    .readAny('catalogs')
-    .updateOwn('catalog')
-    .readAny('my')
-    .readAny('featured')
-    .readAny('search')
-    .readOwn('payment')
-    .readAny('favorites')
-    .readAny('favorite')
-    .createAny('favorite')
-    .deleteOwn('favorite');
+    .createAny('content')
+    .readAny('content')
+    .updateOwn('content')
+    .deleteOwn('content')
+    .readAny('img')
+    .readAny('image')
+    .readAny('images')
+    .createAny('image')
+    .updateOwn('image')
+    .deleteOwn('image');
 
 ac.grant(['productAdmin', 'domainAdmin'])
     .extend('guest')
-    .createAny('catalog')
-    .createAny('admin')
-    .updateAny('admin')
-    .readAny('admin')
-    .updateAny('catalog')
-    .updateAny('card')
-    .deleteAny('card')
-    .deleteAny('favorite')
-    .readAny('payment');
+    .updateAny('content')
+    .deleteAny('content')
+    .updateAny('image')
+    .deleteAny('image');
 
 ac.grant(['superAdmin'])
     .extend('productAdmin')
-    .deleteAny('admin')
-    .deleteAny('catalog')
     .createAny('logs')
     .updateAny('logs')
     .readAny('logs')
-    .deleteAny('logs')
-    .readAny('payment');
+    .deleteAny('logs');
 
 export default ac;

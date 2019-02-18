@@ -7,7 +7,7 @@ import path from 'path';
 import tools from './apiTools/';
 
 import index from './index';
-import api from './api/api_v2';
+import api from './api/api_v3';
 
 const respond = tools.respond;
 const send = tools.send;

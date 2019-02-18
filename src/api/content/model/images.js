@@ -1,17 +1,18 @@
-
 import mongoose from 'mongoose';
+import uuid from 'uuidv4';
+import moment from 'moment';
+
 mongoose.Promise = Promise;
-import searchPlugin from 'mongoose-search-plugin';
 
 const imageSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
-        unique: true
-    },
-    slug: {
-        type: String,
         required: true
+    },
+    guid: {
+        type: String,
+        default: uuid,
+        unique: true
     },
     description: {
         type: String,
@@ -21,42 +22,38 @@ const imageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    product: String,
-    domain: String,
-    tags: {
-        type: Array,
+    product: {
+        type: String,
+        required: true
+    },
+    domain: {
+        type: String,
+        required: true
+    },
+    labels: {
+        type: [String],
         required: false
     },
     created: {
         type: Date,
-        default: Date.now()
+        default: moment().format()
     },
     url: {
         type: String,
         required: true
     },
-    categories:[
-        {
-            name: {
-                type: String,
-                required: true
-            },
-            id: {
-                type: String,
-                required: true
-            }
-        }
-    ],
     meta: {
         type: Object,
         required: false
     }
 });
 
-imageSchema.pre('save', callback=>callback());
+imageSchema.pre('save', callback => callback());
 
-imageSchema.plugin(searchPlugin, {
-    fields: ['name', 'description', 'tags']
+imageSchema.index({
+    name: 'text',
+    description: 'text',
+    labels: 'text'
 });
 
 // Export the Mongoose model

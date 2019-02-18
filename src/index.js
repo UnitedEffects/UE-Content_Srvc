@@ -1,5 +1,6 @@
 import express from 'express';
-import yaml from 'yamljs';
+
+const swagger = require('./swagger').default;
 
 const config = require('./config');
 
@@ -17,14 +18,15 @@ router.get('/', (req, res) => {
 
 router.get('/swagger.json', (req, res) => {
     try {
-        const swag = yaml.load('./swagger.yaml');
+        const swag = swagger;
         swag.info.version = pJson.version;
-        if (process.env.SWAGGER) swag.host = process.env.SWAGGER;
+        swag.info.description = swag.info.description.replace('{{IMPLEMENTER}}', config.IMPLEMENTER);
+        if (config.SWAGGER) swag.servers = [{ url: `${config.PROTOCOL}://${config.SWAGGER}/api` }];
         if (config.ENV.toLowerCase() === 'production' || config.ENV.toLowerCase() === 'qa') swag.schemes = ['https'];
         res.json(swag);
     } catch (error) {
         console.info(error);
-        res.status(400).send(error);
+        res.json(swagger);
     }
 });
 

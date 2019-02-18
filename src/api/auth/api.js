@@ -9,7 +9,8 @@ import log from '../log/logs';
 const respond = tools.respond;
 const config = require('../../config');
 
-async function checkRole(type, access, role, method, resource, userId = null, resourceOwner = null) {
+async function checkRole(type, access, role, method,
+    resource, userId = null, resourceOwner = null) {
     try {
         switch (type) {
         case 'any':

@@ -52,11 +52,13 @@
     "debug": "^3.0.0",
     "es6-promisify": "^5.0.0",
     "express": "^4.16.2",
+    "express-openapi-validate": "^0.4.4",
     "install": "^0.10.1",
     "joi": "^13.0.2",
+    "json-schema-ref-parser": "^6.0.3",
+    "json-schema-resolve-allof": "^1.5.0",
     "moment": "^2.19.1",
     "mongoose": "^5.3.4",
-    "mongoose-search-plugin": "^0.1.2",
     "morgan": "^1.8.2",
     "multer": "^1.4.0",
     "passport": "^0.4.0",
@@ -66,6 +68,7 @@
     "serverless-apigw-binary": "^0.4.4",
     "serverless-domain-manager": "^2.6.5",
     "serverless-http": "^1.6.0",
+    "uuidv4": "^3.0.1",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {

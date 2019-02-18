@@ -16,7 +16,8 @@ provider:
     S3_KEY: ${file(./.env/env.${self:provider.env}.json):S3_KEY}
     S3_SECRET: ${file(./.env/env.${self:provider.env}.json):S3_SECRET}
     S3_BUCKET: ${file(./.env/env.${self:provider.env}.json):S3_BUCKET}
-
+    PROTOCOL: ${file(./.env/env.${self:provider.env}.json):PROTOCOL, 'https'}
+    IMPLEMENTER: ${file(./.env/env.${self:provider.env}.json):IMPLEMENTER}
 package:
   exclude:
     - src/**
