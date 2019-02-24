@@ -15,5 +15,11 @@ export default {
             .replace(/}/g, '');
         const content = new Content(options);
         return send.set200(await content.save(), 'Content');
+    },
+    async returnAll(product, domain) {
+        const query = {};
+        if (product) query.product = product;
+        if (domain) query.domain = domain;
+        return send.set200(await Content.find(query));
     }
 };

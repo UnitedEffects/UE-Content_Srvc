@@ -39,11 +39,10 @@ router.get('/', (req, res) => {
     });
 });
 
-// todo, test api as regular user
 // content
 router.post('/content', [auth.isBearerAuthenticated, auth.middleAny, schemaCheck], contentApi.create);
+router.get('/content/:product*?/:domain*?', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnAll); // todo update swagger (prev /content:), implement with anon/public content, test
 /*
-router.get('/content/:product/:domain', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnAll); //update swagger (prev /content:), implement with anon/public content, test
 router.get('/content/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnOne); //update swagger (prev /:id), make work with both slug and guid, validate anon/public, test
 router.patch('/content/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.patchOne); //prev :id, todo own only or admin
 router.delete('/content/:guid', [auth.isBearerAuthenticated], contentApi.deleteOne); //prev :id, also make this a hard delete todo own only or admin
