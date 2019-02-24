@@ -1,16 +1,11 @@
 import passport from 'passport';
-import promisify from 'es6-promisify';
-import rq from 'request';
+import axios from 'axios';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import moment from 'moment';
 import Token from './model';
 import log from '../log/logs';
 import config from '../../config';
-import tools from '../../apiTools';
 import ac from './roleAccess';
-
-const helper = tools.help;
-const request = promisify(rq);
 
 passport.use('bearer', new BearerStrategy(
     async (accessToken, callback) => {
@@ -75,40 +70,35 @@ passport.use('bearerOptional', new BearerStrategy(
     }
 ));
 
-function getBearerToken(accessToken, callback) {
-    const fullToken = Buffer.from(accessToken.replace(/%3D/g, '='), 'base64').toString('ascii');
-    const lookup = fullToken.split('.');
-    const reqOptions = {
-        method: 'GET',
-        uri: `${config.UEAUTH}/api/validate`,
-        auth: {
-            bearer: accessToken
-        }
-    };
-    request(reqOptions)
-        .then((response) => {
-            if (response.statusCode !== 200) return callback(null, false);
-            const returned = (helper.isJson(response.body))
-                ? JSON.parse(response.body) : response.body;
-            try {
-                if (returned.data.role !== 1
-                    && returned.data.activity.product !== config.PRODUCT_SLUG) {
-                    return callback(null, false);
-                }
-                authFactory.saveToken(returned.data,
-                    { product: lookup[2] || null, domain: lookup[3] || null }, lookup[1], (err) => {
-                        if (err) log.error('Unable to cache the token after validation.');
-                        return callback(null, returned.data);
-                    });
-            } catch (err) {
-                log.error('Unhandled error saving token from UEAUTH');
-                return callback(null, false);
+async function getBearerToken(accessToken, callback) {
+    try {
+        const fullToken = Buffer.from(accessToken.replace(/%3D/g, '='), 'base64').toString('ascii');
+        const lookup = fullToken.split('.');
+        const url = `${config.UEAUTH}/api/validate`;
+        const reqOptions = {
+            method: 'GET',
+            url: url,
+            headers: {
+                authorization: `bearer ${accessToken}`
             }
-        })
-        .catch((error) => {
-            error.detail = 'Bearer Auth from Domain Service';
-            return callback(error, false);
-        });
+        };
+
+        const response = await axios(reqOptions);
+        if (response.status !== 200) return callback(null, false);
+        const returned = response.data;
+
+        if (returned.data.role !== 1
+            && returned.data.activity.product !== config.PRODUCT_SLUG) {
+            return callback(null, false);
+        }
+        await authFactory.saveToken(returned.data,
+            { product: lookup[2] || null, domain: lookup[3] || null }, lookup[1]);
+
+        return callback(null, returned.data);
+    } catch (error) {
+        error.detail = 'Bearer Auth from Domain Service';
+        return callback(error, false);
+    }
 }
 
 passport.serializeUser((user, done) => {
@@ -120,14 +110,17 @@ passport.deserializeUser((user, done) => {
 });
 
 async function find(arr, val) {
-    let result = null;
-    for (const elm of arr) {
-        if (await elm.verifyTokenAsync(val)) {
-            result = elm;
-            break;
-        }
+    try {
+        let result = null;
+        await Promise.all(arr.map((elm) => {
+            if (elm.verifyTokenAsync(val)) {
+                result = elm;
+            }
+        }));
+        return result;
+    } catch (error) {
+        throw error;
     }
-    return result;
 }
 
 const authFactory = {
@@ -147,45 +140,35 @@ const authFactory = {
     },
     isBearerAuthenticated: passport.authenticate('bearer', { session: false }),
     isOptionalAuthenticated: passport.authenticate('bearerOptional', { session: false }),
-    saveToken(user, access, tokenVal, callback) {
-        Token.find({ user_id: user._id, product_slug: access.product, domain_slug: access.domain })
-            .then((toks) => {
-                if (toks.length > 5) return Token.remove({ _id: toks[0]._id });
-                return true;
-            })
-            .then(() => {
-                const tCreated = user.token_created;
-
-                const temp = JSON.parse(JSON.stringify(user));
-                delete temp.token;
-                delete temp.token_created;
-                delete temp.expires;
-
-
-                const token = new Token({
-                    value: tokenVal,
-                    user_id: user._id,
-                    product_slug: access.product,
-                    domain_slug: access.domain,
-                    user: temp,
-                    created: tCreated
-                });
-
-                token.save()
-                    .then((saved) => {
-                        callback(null, saved);
-                    })
-                    .catch((error) => {
-                        error.detail = 'Error Saving Token';
-                        log.detail('ERROR', 'Error Saving Token', error);
-                        callback(error, null);
-                    });
-            })
-            .catch((error) => {
-                error.detail = 'Error Saving Token';
-                log.detail('ERROR', 'Error Saving Token', error);
-                callback(error, null);
+    async saveToken(user, access, tokenVal) {
+        try {
+            const toks = await Token.find({
+                user_id: user._id,
+                product_slug: access.product,
+                domain_slug: access.domain
             });
+            if (toks.length > 5) await Token.findOneAndRemove({ _id: toks[0]._id });
+            const tCreated = user.token_created;
+
+            const temp = JSON.parse(JSON.stringify(user));
+            delete temp.token;
+            delete temp.token_created;
+            delete temp.expires;
+
+
+            const token = new Token({
+                value: tokenVal,
+                user_id: user._id,
+                product_slug: access.product,
+                domain_slug: access.domain,
+                user: temp,
+                created: tCreated
+            });
+            return token.save();
+        } catch (error) {
+            error.detail = 'Error Saving Token';
+            return log.detail('ERROR', 'Error Saving Token', error);
+        }
     },
     async checkRole(type, access, role, method,
         resource, userId = null, resourceOwner = null) {

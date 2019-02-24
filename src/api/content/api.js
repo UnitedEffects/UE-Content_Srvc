@@ -17,7 +17,7 @@ export default {
             req.body.owner = req.user._id;
             return respond.send(res, await content.create(req.body));
         } catch (error) {
-            return respond.send(res, (error.code) ? error : send.error(error.message, 'Card'));
+            return respond.send(res, (error.code) ? error : send.error(error.message, 'Content'));
         }
     },
 }

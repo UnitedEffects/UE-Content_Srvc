@@ -1,9 +1,9 @@
 openapi: 3.0.0
 info:
-  description: This swagger spec details the content, category and image functionality of
-    the United Effects Platform. Copyright 2018 theBoEffect LLC. All rights
+  description: This swagger spec details the content and image functionality of
+    the United Effects Platform. Copyright 2019 theBoEffect LLC. All rights
     reserved. https://unitedeffects.com
-  version: 1.0.0
+  version: 3.0.0
   title: UE Content Service
   contact:
     email: team@unitedeffects.com
@@ -14,8 +14,6 @@ tags:
     description: CRUD for content
   - name: Images
     description: CRUD for images
-  - name: Categories
-    description: Data type agnostic category system
 paths:
   /logs:
     post:
@@ -183,31 +181,6 @@ paths:
       security:
         - UEAuth:
             []
-  "/content/public/{slug}":
-    get:
-      tags:
-        - Content
-      summary: Public access - Get a content entry by slug
-      description: Public access - Get a content entry by slug
-      parameters:
-        - name: slug
-          in: path
-          required: true
-          description: slug of content to retrieve
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
   "/content/{id}":
     get:
       tags:
@@ -218,7 +191,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Id or Slug of content to retrieve
+          description: Id of the content
           schema:
             type: string
       responses:
@@ -288,119 +261,6 @@ paths:
       security:
         - UEAuth:
             []
-  "/content/{id}/category":
-    put:
-      tags:
-        - Content
-      summary: add a category to a content entry
-      description: add a category to a content entry
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of content to retrieve
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/categoryAddObject"
-        description: updates to content. Any of the following.
-        required: true
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/content/{id}/category/{name}":
-    patch:
-      tags:
-        - Content
-      summary: remove a category to a content entry
-      description: remove a category to a content entry
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of content entry to retrieve
-          schema:
-            type: string
-        - name: name
-          in: path
-          required: true
-          description: Name of the category to remove from issue
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/content/{id}/categories":
-    get:
-      tags:
-        - Content
-      summary: Get a content entry categories
-      description: Get a content entry categories
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of content entry categories to retrieve
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/content/category/{name}":
-    get:
-      tags:
-        - Content
-      summary: Get content entrys by category
-      description: Get content entrys by category
-      parameters:
-        - name: name
-          in: path
-          required: true
-          description: name of category to filter
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
   /content/search:
     get:
       tags:
@@ -421,156 +281,6 @@ paths:
           schema:
             type: boolean
             default: true
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  /categories/search:
-    get:
-      tags:
-        - Categories
-      summary: Search for categories
-      description: Search for categories
-      parameters:
-        - name: q
-          in: query
-          required: true
-          description: String to define what you are looking for
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  /category:
-    post:
-      tags:
-        - Categories
-      summary: Add a new category
-      description: Add a new category
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/categoryObject"
-        description: new category to be added
-        required: true
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/categoryResponse"
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  /categories:
-    get:
-      tags:
-        - Categories
-      summary: Get All categories
-      description: Get All categories
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/category/{id}":
-    get:
-      tags:
-        - Categories
-      summary: Get a category
-      description: Get a category
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of category to retrieve
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/categoryResponse"
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-    delete:
-      tags:
-        - Categories
-      summary: Delete a category (hard delete)
-      description: Delete a category (hard delete)
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of category to delete
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/category/name/{name}":
-    get:
-      tags:
-        - Categories
-      summary: Get a category by name
-      description: Get a category by name
-      parameters:
-        - name: name
-          in: path
-          required: true
-          description: name of category to retrieve
-          schema:
-            type: string
       responses:
         "200":
           description: successful operation
@@ -774,119 +484,6 @@ paths:
       security:
         - UEAuth:
             []
-  "/image/{id}/category":
-    put:
-      tags:
-        - Images
-      summary: Add a category to an image entry
-      description: Add a category to an image entry
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of image to retrieve
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/categoryAddObject"
-        description: Category to add to the image
-        required: true
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/image/{id}/category/{name}":
-    patch:
-      tags:
-        - Images
-      summary: Remove a category from an Image entry
-      description: Remove a category from an Image entry
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of image entry to retrieve
-          schema:
-            type: string
-        - name: name
-          in: path
-          required: true
-          description: Name of the category to remove from issue
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/image/{id}/categories":
-    get:
-      tags:
-        - Images
-      summary: Get an image entry categories
-      description: Get an image entry categories
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Id of image entry categories to retrieve
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/images/category/{name}":
-    get:
-      tags:
-        - Images
-      summary: Get image entrys by category
-      description: Get image entrys by category
-      parameters:
-        - name: name
-          in: path
-          required: true
-          description: name of category to filter
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
 externalDocs:
   description: Secured by ueauth.io
   url: https://ueauth.io
@@ -971,7 +568,6 @@ components:
           default: false
     contentCreate:
       required:
-        - owner
         - title
         - product
         - domain
@@ -1002,7 +598,7 @@ components:
           type: boolean
           description: if true, only owner can view
         authRequired:
-          type: boolean,
+          type: boolean
           description: if true, only logged in users can view, otherwise it is public to the internet
         internalDescription:
           type: string
@@ -1055,37 +651,11 @@ components:
           type: boolean
           description: if true, only owner can view
         authRequired:
-          type: boolean,
+          type: boolean
           description: if true, only logged in users can view, otherwise it is public to the internet
         internalDescription:
           type: string
           description: verbose description of the content
-    categoryObject:
-      properties:
-        name:
-          type: string
-        type:
-          type: string
-          default: Content
-        description:
-          type: string
-    categoryResponse:
-      properties:
-        name:
-          type: string
-        pretty_name:
-          type: string
-        type:
-          type: string
-          default: Content
-        description:
-          type: string
-    categoryAddObject:
-      properties:
-        name:
-          type: string
-        id:
-          type: string
     imageObject:
       properties:
         name:

@@ -39,30 +39,10 @@ router.get('/', (req, res) => {
     });
 });
 
-/**
- * Remove these from the swagger
- * router.get('/content/:slug', auth.isBearerAuthenticated, contentApi.returnOneBySlug);
- * router.get('/content/public/:slug', contentApi.returnOneBySlug);
- * router.put('/content/:id/category', auth.isBearerAuthenticated, contentApi.addCategory);
- * router.patch('/content/:id/category/:name', auth.isBearerAuthenticated, contentApi.removeCategory);
- * router.get('/content/:id/categories', auth.isBearerAuthenticated, contentApi.getCategories);
- * router.get('/content/category/:name', auth.isBearerAuthenticated, contentApi.getContentByCategory);
- * // categories
- router.post('/category', [auth.isBearerAuthenticated, auth.isProductAdmin], contentApi.createCategory);
- router.get('/categories', auth.isBearerAuthenticated, contentApi.returnAllCategories);
- router.get('/category/:id', auth.isBearerAuthenticated, contentApi.returnOneCategory);
- router.delete('/category/:id', [auth.isBearerAuthenticated, auth.isProductAdmin], contentApi.removeOneCategory);
- router.get('/category/name/:name', auth.isBearerAuthenticated, contentApi.returnOneCategoryByName);
- router.get('/categories/search', auth.isBearerAuthenticated, contentApi.searchCategory);
- router.put('/image/:id/category', auth.isBearerAuthenticated, contentApi.addImageCategory);
- router.patch('/image/:id/category/:name', auth.isBearerAuthenticated, contentApi.removeImageCategory);
- router.get('/image/:id/categories', auth.isBearerAuthenticated, contentApi.getImageCategories);
- router.get('/images/category/:name', auth.isBearerAuthenticated, contentApi.getImagesByCategory);
-*/
-
 // todo, test api as regular user
 // content
-router.post('/content', [auth.isBearerAuthenticated, auth.middleAny, schemaCheck], contentApi.create); //todo test
+router.post('/content', [auth.isBearerAuthenticated, auth.middleAny, schemaCheck], contentApi.create);
+/*
 router.get('/content/:product/:domain', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnAll); //update swagger (prev /content:), implement with anon/public content, test
 router.get('/content/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnOne); //update swagger (prev /:id), make work with both slug and guid, validate anon/public, test
 router.patch('/content/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.patchOne); //prev :id, todo own only or admin
@@ -79,7 +59,7 @@ router.get('/images/:product/:domain/search', [allowAnon, auth.isOptionalAuthent
 
 // proxy
 router.get('/img/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.imageProxy); //prev :slug
-
+*/
 /**
  * Log API Calls
  */

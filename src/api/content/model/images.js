@@ -3,7 +3,8 @@ import uuid from 'uuidv4';
 import moment from 'moment';
 
 mongoose.Promise = Promise;
-
+mongoose.set('useCreateIndex', true);
+mongoose.set('useFindAndModify', false);
 const imageSchema = new mongoose.Schema({
     name: {
         type: String,

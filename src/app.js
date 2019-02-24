@@ -50,7 +50,7 @@ app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
-    respond.send(res, send.set(err.status || 500, err.message || 'unknown error'));
+    respond.send(res, send.set(err.status || 400, err.message || 'unknown error'));
 });
 
 // Handle uncaughtException

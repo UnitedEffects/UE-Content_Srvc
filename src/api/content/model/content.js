@@ -3,7 +3,8 @@ import moment from 'moment';
 import uuid from 'uuidv4';
 
 mongoose.Promise = Promise;
-
+mongoose.set('useCreateIndex', true);
+mongoose.set('useFindAndModify', false);
 const contentSchema = new mongoose.Schema({
     created: {
         type: Date,
