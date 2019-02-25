@@ -129,6 +129,48 @@ paths:
         - UEAuth:
             []
   /content:
+    get:
+      tags:
+        - Content
+      summary: Get All content entrys
+      description: Get All content entrys
+      parameters:
+        - name: product
+          in: query
+          required: false
+          description: product to categorize the content
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          description: domain to categorize the content
+          schema:
+            type: string
+        - name: owner
+          in: query
+          required: false
+          description: owner of the content you're looking for
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          description: full text search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+        "401":
+          description: Unauthorized
+        "405":
+          description: Invalid input
+        "500":
+          description: Unknown error
+      security:
+        - UEAuth:
+            []
     post:
       tags:
         - Content
@@ -157,41 +199,30 @@ paths:
       security:
         - UEAuth:
             []
-    get:
-      tags:
-        - Content
-      summary: Get All content entrys
-      description: Get All content entrys
-      parameters:
-        - name: tag
-          in: query
-          required: false
-          description: optional filter on tag value
-          schema:
-            type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/content/{id}":
+
+  "/content/{guid}":
     get:
       tags:
         - Content
       summary: Get a content entry
       description: Get a content entry
       parameters:
-        - name: id
+        - name: guid
           in: path
           required: true
-          description: Id of the content
+          description: Guid (or Slug) of the content
+          schema:
+            type: string
+        - name: product
+          in: query
+          required: false
+          description: product to categorize the content
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          description: domain to categorize the content
           schema:
             type: string
       responses:
@@ -212,10 +243,10 @@ paths:
       summary: Edit a content entry
       description: Edit a content entry
       parameters:
-        - name: id
+        - name: guid
           in: path
           required: true
-          description: Id of content to retrieve
+          description: Guid (or Slug) of content to retrieve
           schema:
             type: string
       requestBody:
@@ -243,44 +274,24 @@ paths:
       summary: Delete a content entry (hard delete)
       description: Delete a content (hard delete)
       parameters:
-        - name: id
+        - name: guid
           in: path
           required: true
-          description: Id of content to delete
+          description: Guid of content to delete (ONLY GUID WORKS)
           schema:
             type: string
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  /content/search:
-    get:
-      tags:
-        - Content
-      summary: Search for content
-      description: Search for content
-      parameters:
-        - name: q
+        - name: product
           in: query
           required: true
-          description: String to define what you are looking for
+          description: product to categorize the content
           schema:
             type: string
-        - name: active
+        - name: domain
           in: query
-          required: false
-          description: Whether or not you want active or inactive records returned
+          required: true
+          description: domain to categorize the content
           schema:
-            type: boolean
-            default: true
+            type: string
       responses:
         "200":
           description: successful operation
@@ -318,12 +329,18 @@ paths:
                 domain:
                   description: domain to correlate image to
                   type: string
-                tag:
-                  type: string
+                labels:
+                  type: array
+                  items:
+                    type: string
+                meta:
+                  type: object
               required:
                 - file
                 - name
                 - description
+                - product
+                - domain
       responses:
         "200":
           description: successful operation
@@ -336,17 +353,29 @@ paths:
       security:
         - UEAuth:
             []
-  "/image/{id}":
+  "/image/{guid}":
     get:
       tags:
         - Images
       summary: Get an image data
       description: Get an image data
       parameters:
-        - name: id
+        - name: guid
           in: path
           required: true
-          description: id of image to retrieve
+          description: Guid of image to retrieve
+          schema:
+            type: string
+        - name: product
+          in: query
+          required: false
+          description: product to categorize the image
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          description: domain to categorize the image
           schema:
             type: string
       responses:
@@ -367,10 +396,10 @@ paths:
       summary: Update an imgage data
       description: Update an image data
       parameters:
-        - name: id
+        - name: guid
           in: path
           required: true
-          description: id of image to retrieve
+          description: Guid of image to retrieve
           schema:
             type: string
       requestBody:
@@ -398,10 +427,22 @@ paths:
       summary: Delete an image entry - Warning, this will break dependecies
       description: Delerte an image entry - Warning, this will break dependecies
       parameters:
-        - name: id
+        - name: guid
           in: path
           required: true
-          description: id of image to delete
+          description: Guid of image to retrieve
+          schema:
+            type: string
+        - name: product
+          in: query
+          required: false
+          description: product to categorize the image
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          description: domain to categorize the image
           schema:
             type: string
       responses:
@@ -420,31 +461,31 @@ paths:
     get:
       tags:
         - Images
-      summary: PUBLIC - Get all images
-      description: PUBLIC - Get all images
-      responses:
-        "200":
-          description: successful operation
-        "401":
-          description: Unauthorized
-        "405":
-          description: Invalid input
-        "500":
-          description: Unknown error
-      security:
-        - UEAuth:
-            []
-  "/img/{slug}":
-    get:
-      tags:
-        - Images
-      summary: Proxy to an image directly
-      description: Proxy to an image directly
+      summary: Get all images
+      description: Get all images
       parameters:
-        - name: slug
-          in: path
-          required: true
-          description: id of image to retrieve
+        - name: product
+          in: query
+          required: false
+          description: product to categorize the image
+          schema:
+            type: string
+        - name: domain
+          in: query
+          required: false
+          description: domain to categorize the image
+          schema:
+            type: string
+        - name: owner
+          in: query
+          required: false
+          description: owner of the image you're looking for
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          description: full text search
           schema:
             type: string
       responses:
@@ -459,17 +500,17 @@ paths:
       security:
         - UEAuth:
             []
-  /images/search:
+  "/img/{guid}":
     get:
       tags:
         - Images
-      summary: Search for Images
-      description: Search for Images
+      summary: Proxy to an image directly
+      description: Proxy to an image directly
       parameters:
-        - name: q
-          in: query
+        - name: guid
+          in: path
           required: true
-          description: String to define what you are looking for
+          description: Guid of image to retrieve
           schema:
             type: string
       responses:

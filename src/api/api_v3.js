@@ -41,20 +41,17 @@ router.get('/', (req, res) => {
 
 // content
 router.post('/content', [auth.isBearerAuthenticated, auth.middleAny, schemaCheck], contentApi.create);
-router.get('/content/:product*?/:domain*?', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnAll); // todo update swagger (prev /content:), implement with anon/public content, test
+router.get('/content', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnAll);
+router.get('/content/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnOne);
+router.patch('/content/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.patchOne);
+router.delete('/content/:guid', [auth.isBearerAuthenticated], contentApi.deleteOne);
 /*
-router.get('/content/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnOne); //update swagger (prev /:id), make work with both slug and guid, validate anon/public, test
-router.patch('/content/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.patchOne); //prev :id, todo own only or admin
-router.delete('/content/:guid', [auth.isBearerAuthenticated], contentApi.deleteOne); //prev :id, also make this a hard delete todo own only or admin
-router.get('/content/:product/:domain/search', [allowAnon, auth.isOptionalAuthenticated], contentApi.searchContent); //prev /content/search, remove references to plugin, allowAnon
-
 // images
 router.post('/image', [auth.isBearerAuthenticated, auth.middleAny, schemaCheck, upload.single('file')], contentApi.addImage); //todo ensure prod/dom required
 router.patch('/image/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.updateImage); //prev :id todo own only or admin
 router.delete('/image/:guid', [auth.isBearerAuthenticated], contentApi.removeImage); //prev :id, make hard delete todo own only or admin
 router.get('/image/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.getImage); //prev :id
 router.get('/images/:product/:domain', [allowAnon, auth.isOptionalAuthenticated], contentApi.getImages); //prev no domain/product
-router.get('/images/:product/:domain/search', [allowAnon, auth.isOptionalAuthenticated], contentApi.searchImages); //prev /images/search
 
 // proxy
 router.get('/img/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.imageProxy); //prev :slug
