@@ -45,17 +45,17 @@ router.get('/content', [allowAnon, auth.isOptionalAuthenticated], contentApi.ret
 router.get('/content/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.returnOne);
 router.patch('/content/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.patchOne);
 router.delete('/content/:guid', [auth.isBearerAuthenticated], contentApi.deleteOne);
-/*
+
 // images
-router.post('/image', [auth.isBearerAuthenticated, auth.middleAny, schemaCheck, upload.single('file')], contentApi.addImage); //todo ensure prod/dom required
-router.patch('/image/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.updateImage); //prev :id todo own only or admin
-router.delete('/image/:guid', [auth.isBearerAuthenticated], contentApi.removeImage); //prev :id, make hard delete todo own only or admin
-router.get('/image/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.getImage); //prev :id
-router.get('/images/:product/:domain', [allowAnon, auth.isOptionalAuthenticated], contentApi.getImages); //prev no domain/product
+router.post('/image', [auth.isBearerAuthenticated, auth.middleAny, schemaCheck, upload.single('file')], contentApi.addImage);
+router.patch('/image/:guid', [auth.isBearerAuthenticated, schemaCheck], contentApi.updateImage);
+router.delete('/image/:guid', [auth.isBearerAuthenticated], contentApi.removeImage);
+router.get('/image/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.getImage);
+router.get('/images', [allowAnon, auth.isOptionalAuthenticated], contentApi.getImages);
 
 // proxy
-router.get('/img/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.imageProxy); //prev :slug
-*/
+router.get('/img/:guid', [allowAnon, auth.isOptionalAuthenticated], contentApi.imageProxy);
+
 /**
  * Log API Calls
  */

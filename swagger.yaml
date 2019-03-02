@@ -314,36 +314,20 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                name:
-                  type: string
-                description:
-                  type: string
-                product:
-                  description: product to correlate image to
-                  type: string
-                domain:
-                  description: domain to correlate image to
-                  type: string
-                labels:
-                  type: array
-                  items:
-                    type: string
-                meta:
-                  type: object
-              required:
-                - file
-                - name
-                - description
-                - product
-                - domain
+              $ref: "#/components/schemas/imageCreate"
       responses:
         "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [Image]
+                  data:
+                    $ref: "#/components/schemas/imageObject"
         "401":
           description: Unauthorized
         "405":
@@ -381,6 +365,16 @@ paths:
       responses:
         "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [Image]
+                  data:
+                    $ref: "#/components/schemas/imageObject"
         "401":
           description: Unauthorized
         "405":
@@ -406,12 +400,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/imageObject"
+              $ref: "#/components/schemas/imageObjectPatch"
         description: new image data to be added
         required: true
       responses:
         "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [Image]
+                  data:
+                    $ref: "#/components/schemas/imageObject"
         "401":
           description: Unauthorized
         "405":
@@ -425,7 +429,7 @@ paths:
       tags:
         - Images
       summary: Delete an image entry - Warning, this will break dependecies
-      description: Delerte an image entry - Warning, this will break dependecies
+      description: Delete an image entry - Warning, this will break dependecies
       parameters:
         - name: guid
           in: path
@@ -435,19 +439,29 @@ paths:
             type: string
         - name: product
           in: query
-          required: false
+          required: true
           description: product to categorize the image
           schema:
             type: string
         - name: domain
           in: query
-          required: false
+          required: true
           description: domain to categorize the image
           schema:
             type: string
       responses:
         "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [Image]
+                  data:
+                    $ref: "#/components/schemas/imageObject"
         "401":
           description: Unauthorized
         "405":
@@ -491,6 +505,18 @@ paths:
       responses:
         "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [Images]
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/imageObject"
         "401":
           description: Unauthorized
         "405":
@@ -697,21 +723,85 @@ components:
         internalDescription:
           type: string
           description: verbose description of the content
-    imageObject:
+    imageCreate:
+      type: object
       properties:
+        file:
+          type: string
+          format: binary
+        owner:
+          type: string
         name:
           type: string
         description:
           type: string
         product:
+          description: product to correlate image to
           type: string
         domain:
+          description: domain to correlate image to
           type: string
-        url:
-          type: string
-        slug:
-          type: string
-        tags:
+        labels:
           type: array
           items:
             type: string
+        authRequired:
+          type: boolean
+          default: false
+        meta:
+          type: object
+      required:
+        - file
+        - name
+        - description
+        - product
+        - domain
+    imageObjectPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        authRequired:
+          type: boolean
+        labels:
+          type: array
+          items:
+            type: string
+    imageObject:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: DB id
+        guid:
+          type: string
+          description: external reference Id
+        created:
+          type: string
+          format: date-time
+        owner:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        product:
+          description: product to correlate image to
+          type: string
+        domain:
+          description: domain to correlate image to
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+        authRequired:
+          type: boolean
+        url:
+          type: string
+          description: location of the image in s3
+        meta:
+          type: object

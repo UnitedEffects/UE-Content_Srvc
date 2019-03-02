@@ -43,11 +43,15 @@ const imageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    authRequired: {
+        type: Boolean,
+        default: true
+    },
     meta: {
         type: Object,
         required: false
     }
-});
+}, { versionKey: false });
 
 imageSchema.pre('save', callback => callback());
 

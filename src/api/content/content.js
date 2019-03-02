@@ -8,11 +8,14 @@ export default {
     async create(data) {
         const options = data;
         options.guid = uuid();
-        options.slug = `${options.guid}-${options.title.trim().toLowerCase().replace(/ /g, '_').replace(/\./g, '')}`
+        const preSlug = options.title.trim().toLowerCase()
+            .replace(/ /g, '_')
+            .replace(/\./g, '')
             .replace(/!/g, '')
             .replace(/\?/g, '')
             .replace(/{/g, '')
             .replace(/}/g, '');
+        options.slug = `${options.guid}_${preSlug}`;
         const content = new Content(options);
         return send.set200(await content.save(), 'Content');
     },
@@ -22,7 +25,7 @@ export default {
             query.$text = { $search: query.search };
             delete query.search;
         }
-        return send.set200(await Content.find(query));
+        return send.set200(await Content.find(query), 'Content');
     },
     async _getOne(lookup) {
         const query = lookup;

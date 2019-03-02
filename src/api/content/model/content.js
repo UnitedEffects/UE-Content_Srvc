@@ -49,7 +49,7 @@ const contentSchema = new mongoose.Schema({
         default: false
     },
     internalDescription: String
-});
+}, { versionKey: false });
 
 contentSchema.pre('save', callback => callback());
 
