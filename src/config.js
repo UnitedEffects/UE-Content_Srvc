@@ -1,5 +1,5 @@
 const env = process.env.NODE_ENV || 'dev';
-const envVars = require(`../.env/env.${env}`);
+const envVars = (env==='dev') ? require(`../.env/env.${env}`) : {};
 
 const config = {
     ENV: process.env.NODE_ENV || envVars.NODE_ENV || 'dev',
