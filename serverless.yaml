@@ -6,6 +6,7 @@ provider:
   stage: ${file(./.env/env.${self:provider.env}.json):NODE_ENV}
   env: ${env:SLS_ENV, 'test'}
   region: us-east-1
+  timeout: 15
   environment:
     NODE_ENV: ${file(./.env/env.${self:provider.env}.json):NODE_ENV}
     SWAGGER: ${file(./.env/env.${self:provider.env}.json):SWAGGER}
