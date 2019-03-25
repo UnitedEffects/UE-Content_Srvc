@@ -129,7 +129,7 @@ const authFactory = {
             const theToken = await find(tokens, val);
             if (theToken) {
                 theToken.user.token = access;
-                theToken.user.expires = moment(theToken.created).add(12, 'hours');
+                theToken.user.expires = moment.utc(theToken.created).add(12, 'hours').format();
                 theToken.user.token_created = theToken.created;
             }
             return theToken;
