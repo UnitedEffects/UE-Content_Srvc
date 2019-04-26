@@ -123,22 +123,26 @@ export default {
                 ContentType: req.file.mimetype
             }, async (error, data) => {
                 if (error) throw error;
-                const options = {
-                    name: req.body.name,
-                    guid,
-                    description: req.body.description,
-                    product: req.body.product,
-                    domain: req.body.domain,
-                    url: data.Location,
-                    owner: req.body.owner || req.user._id,
-                    labels: req.body.labels.split(','),
-                    meta: data
-                };
-                if (fs.existsSync(req.file.path)) {
-                    console.info(`File Found. Deleting ${req.file.path} as cleanup now.`);
-                    fs.unlinkSync(req.file.path);
+                try {
+                    const options = {
+                        name: req.body.name,
+                        guid,
+                        description: req.body.description,
+                        product: req.body.product,
+                        domain: req.body.domain,
+                        url: data.Location,
+                        owner: req.body.owner || req.user._id,
+                        labels: (req.body.labels) ? req.body.labels.split(',') : undefined,
+                        meta: data
+                    };
+                    if (fs.existsSync(req.file.path)) {
+                        console.info(`File Found. Deleting ${req.file.path} as cleanup now.`);
+                        fs.unlinkSync(req.file.path);
+                    }
+                    return respond.send(res, await images.addImage(options));
+                } catch (error) {
+                    throw error;
                 }
-                return respond.send(res, await images.addImage(options));
             });
         } catch (error) {
             return respond.send(res, (error.code) ? error : send.error(error.message, 'Image'));
