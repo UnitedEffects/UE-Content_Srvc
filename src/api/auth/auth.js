@@ -45,14 +45,14 @@ passport.use('bearerOptional', new BearerStrategy(
             if (accessToken === 'anon') return callback(null, { anon: true });
             const fullToken = Buffer.from(accessToken.replace(/%3D/g, '='), 'base64').toString('ascii');
             const lookup = fullToken.split('.');
-            if (!lookup.length >= 2) return callback(null, false);
+            if (!lookup.length >= 2) return callback(null, { anon: true });
             const userId = (lookup[0]) ? lookup[0] : null;
             const tokenVal = (lookup[1]) ? lookup[1] : null;
             const product = (lookup[2]) ? lookup[2] : null;
             const domain = (lookup[3]) ? lookup[3] : null;
 
-            if (!product) return callback(null, false);
-            if (!domain) return callback(null, false);
+            if (!product) return callback(null, { anon: true });
+            if (!domain) return callback(null, { anon: true });
 
             const tokens = await Token.find({
                 user_id: userId,
@@ -65,7 +65,7 @@ passport.use('bearerOptional', new BearerStrategy(
         } catch (error) {
             error.detail = 'Unhandled Error caught at Bearer Auth';
             log.error('Unhandled Error caught at Bearer Auth');
-            return callback(error, false);
+            return callback(error, { anon: true });
         }
     }
 ));
