@@ -60,7 +60,10 @@ passport.use('bearerOptional', new BearerStrategy(
                 domain_slug: domain
             });
             const token = await authFactory.findToken(tokens, tokenVal, accessToken);
-            if (!token) return getBearerToken(accessToken, (err, result) => callback(err, result));
+            if(!token) return getBearerToken(accessToken, (err, result) => {
+                if(!result) return callback(null, { anon: true });
+                return callback(err, result)
+            });
             return callback(null, token.user);
         } catch (error) {
             error.detail = 'Unhandled Error caught at Bearer Auth';
@@ -69,6 +72,8 @@ passport.use('bearerOptional', new BearerStrategy(
         }
     }
 ));
+
+
 
 async function getBearerToken(accessToken, callback) {
     try {
