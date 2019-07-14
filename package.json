@@ -78,5 +78,10 @@
     "eslint-plugin-mocha": "^4.11.0",
     "eslint-plugin-react": "^7.2.1",
     "mocha": "^3.3.0"
+  },
+  "resolutions": {
+    "sinon/*/lodash": "^4.17.13",
+    "mocha/*/growl": "^1.10.0",
+    "chai-http/*/superagent": "^3.7.0"
   }
 }
