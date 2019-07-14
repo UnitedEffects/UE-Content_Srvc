@@ -82,6 +82,7 @@
   "resolutions": {
     "sinon/*/lodash": "^4.17.13",
     "mocha/*/growl": "^1.10.0",
+    "mocha/*/diff": "^3.5.0",
     "chai-http/*/superagent": "^3.7.0"
   }
 }
