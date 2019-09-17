@@ -167,9 +167,16 @@ export default {
                 domain: req.query.domain,
                 product: req.query.product
             };
+            const s3Client = new AWS.S3({
+                accessKeyId: config.S3_KEY,
+                secretAccessKey: config.S3_SECRET
+            });
+            const params = { Bucket: config.S3_BUCKET, Key: req.params.guid };
             if (!auth.validAdmin(req.user)) query.owner = req.user._id;
             if (!query.domain || !query.product) return respond.send(res, send.fail400('Domain and Product query params are required for delete'));
-            return respond.send(res, await images.deleteOne(query));
+            const response = await images.deleteOne(query);
+            const confirm = await s3Client.deleteObject(params).promise();
+            return respond.send(res, response);
         } catch (error) {
             return respond.send(res, (error.code) ? error : send.error(error.message, 'Image'));
         }

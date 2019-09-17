@@ -428,8 +428,8 @@ paths:
     delete:
       tags:
         - Images
-      summary: Delete an image entry - Warning, this will break dependecies
-      description: Delete an image entry - Warning, this will break dependecies
+      summary: Delete an image. Deletes from local db and from s3.
+      description: Delete an image. Deletes from local db and from s3.
       parameters:
         - name: guid
           in: path
