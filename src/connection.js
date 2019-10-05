@@ -8,6 +8,7 @@ const connect = {
                 connectTimeoutMS: 10000,
                 useNewUrlParser: true,
                 promiseLibrary: Promise,
+                useUnifiedTopology: true,
                 replicaSet: null
             };
             if (config.ENV === 'production') mongoOptions.replicaSet = replica;
