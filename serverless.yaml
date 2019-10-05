@@ -6,6 +6,7 @@ provider:
   stage: ${file(./.env/env.${self:provider.env}.json):NODE_ENV}
   env: ${env:SLS_ENV, 'test'}
   region: us-east-1
+  timeout: 30
   environment:
     NODE_ENV: ${file(./.env/env.${self:provider.env}.json):NODE_ENV}
     SWAGGER: ${file(./.env/env.${self:provider.env}.json):SWAGGER}
@@ -16,7 +17,8 @@ provider:
     S3_KEY: ${file(./.env/env.${self:provider.env}.json):S3_KEY}
     S3_SECRET: ${file(./.env/env.${self:provider.env}.json):S3_SECRET}
     S3_BUCKET: ${file(./.env/env.${self:provider.env}.json):S3_BUCKET}
-
+    PROTOCOL: ${file(./.env/env.${self:provider.env}.json):PROTOCOL, 'https'}
+    IMPLEMENTER: ${file(./.env/env.${self:provider.env}.json):IMPLEMENTER}
 package:
   exclude:
     - src/**
@@ -39,7 +41,7 @@ custom:
 
 functions:
   app:
-    handler: dist/bin/slsapp.handler
+    handler: dist/slsapp.handler
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'

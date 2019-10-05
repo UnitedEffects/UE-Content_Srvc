@@ -14,8 +14,8 @@ This service allows you to create and store content (text, html or images) to be
 This will run directly from the source code. It uses babelcore in memory so you don't need to transpile anything.
 
 * Clone this repo
-* mv /src/config_changeme.js /src/config.js
-* Update default values in the config.js file
+* copy .env_changeme as .env
+* make appropriate updates to env.dev.json for your runtime parameters
 * yarn
 * yarn test (pending)
 * yarn run dev
@@ -24,8 +24,8 @@ This will run directly from the source code. It uses babelcore in memory so you 
 ## Transpile and Run
 
 * Clone this repo
-* mv /src/config_changeme.js /src/config.js
-* Update default values in the config.js file
+* copy .env_changeme as .env
+* make appropriate updates to env.dev.json for your runtime parameters
 * yarn
 * yarn test (pending)
 * yarn build
@@ -37,10 +37,8 @@ This will run directly from the source code. It uses babelcore in memory so you 
 This serverless framework setup is only compatible with AWS Lambda because of the use of the serverless-http package.
 
 * clone this repo
-* mv /src/config_changeme.js /src/config.js
-* update default values in the config.js file
-* mv /.env_changem /.env
-* Update /.env/env.test.json with appropriate values
+* copy .env_changeme as .env
+* make appropriate updates to env.dev.json for your runtime parameters
 * This repo uses the files within the .env folder to define for which environment to configure a deployment. The syntax for these environment files is env.{yourenvironment}.json, where "yourenvironment" represents a parameter that the serverless framework uses to identify the specific file it should be reading. In the provided example, "yourenvironment"=test. You can set this value using the environment variable SLS_ENV.
 * SLS_ENV=test yarn run deploy
 
