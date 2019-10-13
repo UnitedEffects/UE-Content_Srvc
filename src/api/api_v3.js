@@ -28,7 +28,7 @@ function allowAnon(req, res, next) {
     return next();
 }
 
-router.get('/', (req, res) => {
+router.get('/version', (req, res) => {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     res.json({
         service: 'United Effects - Content Service',
