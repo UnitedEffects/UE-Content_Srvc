@@ -7,8 +7,8 @@
     "dev": "nodemon ./src/start.js",
     "dist": "nodemon ./dist/start.js",
     "build": "yarn && babel src -d dist",
-    "package": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls package",
-    "deploy": "yarn && babel src -d dist && rm -rf ./node_modules/ && yarn --production && sls deploy",
+    "package": "yarn && babel src -d dist && sls package",
+    "deploy": "yarn && babel src -d dist && sls deploy",
     "test": "mocha --recursive './test/*Test.js' --compilers js:babel-core/register",
     "lintFix": "eslint . --fix"
   },
