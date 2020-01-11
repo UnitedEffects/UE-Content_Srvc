@@ -1,6 +1,6 @@
 {
   "name": "ue-content",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A microservice to store and serve content to a UI.",
   "scripts": {
     "start": "node ./src/bin/start.js",

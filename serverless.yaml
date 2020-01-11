@@ -2,7 +2,7 @@ service: ${file(./.env/env.${self:provider.env}.json):NAME}
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   stage: ${file(./.env/env.${self:provider.env}.json):NODE_ENV}
   env: ${env:SLS_ENV, 'test'}
   region: us-east-1
