@@ -1,25 +1,41 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+
 const config = require('./config');
+
+let i = 0;
 const connect = {
-    async create (mongoConnect, replica) {
+    connectOptions() {
+        return {
+            keepAlive: 300000,
+            connectTimeoutMS: 10000,
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useFindAndModify: false,
+            useCreateIndex: true,
+            promiseLibrary: Promise,
+        };
+    },
+    replicaCheck(options, replica, env) {
+        if (config.ENV !== env) {
+            options.replicaSet = replica;
+        }
+        return options;
+    },
+    async create(mongoConnect, replica) {
         try {
-            const mongoOptions = {
-                keepAlive: 300000,
-                connectTimeoutMS: 10000,
-                useNewUrlParser: true,
-                promiseLibrary: Promise,
-                useUnifiedTopology: true,
-                replicaSet: null
-            };
-            if (config.ENV === 'production') mongoOptions.replicaSet = replica;
-            console.error('mongo connecting');
-            return await mongoose.connect(`${mongoConnect}?authSource=admin`, mongoOptions);
+            let mongoOptions = this.connectOptions();
+            mongoOptions = this.replicaCheck(mongoOptions, replica, 'dev');
+            console.error(`mongo connecting - try: ${i}`);
+            i++;
+            await mongoose.connect(`${mongoConnect}?authSource=admin`, mongoOptions);
+            return console.info('connected');
         } catch (err) {
-            console.log(`******** DB attempted and failed:  ${mongoConnect} ********`);
+            console.error(`******** DB attempted and failed:  ${mongoConnect} ********`);
             console.error(err);
-            console.log('Retrying Connection');
-            // todo add a retry limit
-            await connect.create(mongoConnect, replica);
+            console.error('Retrying Connection');
+            if (i < 20) return connect.create(mongoConnect, replica);
+            console.info('Retry limit for connection attempts hit. Ending process');
+            return process.exit(1);
         }
     }
 };
