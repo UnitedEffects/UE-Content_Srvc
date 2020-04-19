@@ -22,7 +22,6 @@ router.get('/swagger.json', (req, res) => {
         swag.info.version = pJson.version;
         swag.info.description = swag.info.description.replace('{{IMPLEMENTER}}', config.IMPLEMENTER);
         if (config.SWAGGER) swag.servers = [{ url: `${config.PROTOCOL}://${config.SWAGGER}/api` }];
-        if (config.ENV.toLowerCase() === 'production' || config.ENV.toLowerCase() === 'qa') swag.schemes = ['https'];
         res.json(swag);
     } catch (error) {
         console.info(error);
