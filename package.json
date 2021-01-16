@@ -42,7 +42,7 @@
   "dependencies": {
     "accesscontrol": "^2.2.1",
     "aws-sdk": "^2.177.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-core": "^6.25.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
